@@ -1,0 +1,158 @@
+﻿@model IMS.ViewModels.MovieViewModel
+
+@{
+    ViewData["Title"] = "Фильмы";
+}
+
+<h1>Фильмы</h1>
+
+<h2>Фильтровать по:</h2>
+<div class="container border-1 border-secondary">
+    <div class="row">
+        <form asp-controller="Movies" asp-action="View">
+            <div>
+                <label for="select_country">Стране</label>
+                <select id="select_country">
+                    @foreach (var coutry in Model.Countries)
+                    {
+                        <option>
+                            @coutry.Name
+                        </option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label>Жанру</label>
+                <select id="select_genre">
+                    @foreach (var genre in Model.Genres)
+                    {
+                        <option>
+                            @genre.Name
+                        </option>
+                    }
+                </select>
+            </div>
+            <div>
+                <p>Оценке</p>
+                <input type="radio" id="rating" value="Убыв."/>
+                <input type="radio" id="rating" value="Возр." />
+                <label for="min_rating">Минимальная оценка</label>
+                <input type="number" id="min_rating" value="0.0" min="0.0" max="10.0" step="2" />
+            </div>
+            <div>
+                <p>Году выпуска</p>
+                <label for="min_date">Минимальный год</label>
+                <input type="date" id="min_date" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("Id")
+            </th>
+            <th>
+                @Html.DisplayName("NameRu")
+            </th>
+            <th>
+                @Html.DisplayName("NameEn")
+            </th>
+            <th>
+                @Html.DisplayName("Slogan")
+            </th>
+            <th>
+                @Html.DisplayName("Description")
+            </th>
+            <th>
+                @Html.DisplayName("ShortDescription")
+            </th>
+            <th>
+                @Html.DisplayName("PosterUrl")
+            </th>
+            <th>
+                @Html.DisplayName("RatingKinopoisk")
+            </th>
+            <th>
+                @Html.DisplayName("RatingImdb")
+            </th>
+            <th>
+                @Html.DisplayName("WebUrl")
+            </th>
+            <th>
+                @Html.DisplayName("Year")
+            </th>
+            <th>
+                @Html.DisplayName("FilmLenght")
+            </th>
+            <th>
+                @Html.DisplayName("EditorAnnotation")
+            </th>
+            <th>
+                @Html.DisplayName("RatingAgeLimits")
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Movies)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NameRu)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NameEn)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Slogan)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ShortDescription)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PosterUrl)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RatingKinopoisk)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RatingImdb)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.WebUrl)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Year)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FilmLenght)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EditorAnnotation)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RatingAgeLimits)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                </td>
+            </tr>
+        }
+        <tr>
+            <td>
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            </td>
+        </tr>
+    </tbody>
+</table>

@@ -1,7 +1,19 @@
+using Microsoft.EntityFrameworkCore;
+using IMS.Controllers;
+using IMS.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
+    builder.Configuration.
+    GetConnectionString("Default")
+    ));
+
+builder.Services.AddLogging(logging => logging.AddConsole());
+builder.Services.AddSingleton<Logger<MoviesController>>();
 
 var app = builder.Build();
 

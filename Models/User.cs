@@ -7,16 +7,24 @@ namespace IMS.Models
         [Key]
         public int Id { get; set; }
         [Required]
+        [MaxLength(20)]
+        [MinLength(2)]
         public string Name { get; set; }
+        [MaxLength(20)]
+        [MinLength(5)]
         public string? Surname { get; set; }
         [Required]
+        [MaxLength(20)]
+        [MinLength(5)]
         public string NickName { get; set; }
         [Required]
+        [MaxLength(25)]
         public string Email { get; set; }
         [Required]
+        [MaxLength(30)]
         public string Password { get; set; }
-        public DateTime BirthDate { get; set; }
-        public string? Country { get; set; }
-        public Rating Rating { get; set; }
+        public DateOnly BirthDate { get; set; }
+        public Country Country { get; set; }
+        public IEnumerable<Rating>? MoviesRatings { get; set; }
     }
 }

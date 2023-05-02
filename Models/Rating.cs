@@ -7,8 +7,11 @@ namespace IMS.Models
         [Key]
         public int Id { get; set; }
         public int RatingNum { get; set; }
-        public string MovieName { get; set; }
-        public DateTime RatingDate { get; set; } = DateTime.Now;
+        public Movie Movie { get; set; }
+        [MaxLength(10000)]
+        [MinLength(10)]
         public string? RatingComment { get; set; }
+        public int UserId { get; set; }
+        public User User { get; set; }
     }
 }
