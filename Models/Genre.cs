@@ -9,6 +9,5 @@ namespace IMS.Models
         [MaxLength(25)]
         [MinLength(5)]
         public string Name { get; set; }
-        public IEnumerable<Movie> Movies { get; set; }
     }
 }

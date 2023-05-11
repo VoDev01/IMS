@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using IMS.Controllers;
 using IMS.Data;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
