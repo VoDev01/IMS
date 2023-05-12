@@ -42,7 +42,7 @@ namespace IMS.Migrations
 
                     b.HasIndex("MovieId");
 
-                    b.ToTable("Countries", (string)null);
+                    b.ToTable("Countries");
                 });
 
             modelBuilder.Entity("IMS.Models.Genre", b =>
@@ -65,7 +65,7 @@ namespace IMS.Migrations
 
                     b.HasIndex("MovieId");
 
-                    b.ToTable("Genres", (string)null);
+                    b.ToTable("Genres");
                 });
 
             modelBuilder.Entity("IMS.Models.Movie", b =>
@@ -77,8 +77,8 @@ namespace IMS.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .HasMaxLength(2500)
-                        .HasColumnType("nvarchar(2500)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("EditorAnnotation")
                         .HasMaxLength(75)
@@ -107,8 +107,9 @@ namespace IMS.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int?>("RatingAgeLimits")
-                        .HasColumnType("int");
+                    b.Property<string>("RatingAgeLimits")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<float?>("RatingImdb")
                         .HasColumnType("real");
@@ -117,8 +118,8 @@ namespace IMS.Migrations
                         .HasColumnType("real");
 
                     b.Property<string>("ShortDescription")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Slogan")
                         .HasMaxLength(75)
@@ -134,7 +135,7 @@ namespace IMS.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Movies", (string)null);
+                    b.ToTable("Movies");
                 });
 
             modelBuilder.Entity("IMS.Models.Rating", b =>
@@ -164,7 +165,7 @@ namespace IMS.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Ratings", (string)null);
+                    b.ToTable("Ratings");
                 });
 
             modelBuilder.Entity("IMS.Models.User", b =>
@@ -209,7 +210,7 @@ namespace IMS.Migrations
 
                     b.HasIndex("CountryId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("IMS.Models.Country", b =>

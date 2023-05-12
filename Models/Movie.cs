@@ -19,9 +19,11 @@ namespace IMS.Models
         [MaxLength(75)]
         [MinLength(5)]
         public string? Slogan { get; set; }
-        [MaxLength(2500)]
+        [MaxLength(2000)]
+        [MinLength(100)]
         public string? Description { get; set; }
-        [MaxLength(100)]
+        [MaxLength(500)]
+        [MinLength(100)]
         public string? ShortDescription { get; set; }
         [MaxLength(1000)]
         public string PosterUrl { get; set; }
@@ -34,7 +36,9 @@ namespace IMS.Models
         [MaxLength(75)]
         [MinLength(10)]
         public string? EditorAnnotation { get; set; }
-        public int? RatingAgeLimits { get; set; }
+        [MaxLength(20)]
+        [MinLength(5)]
+        public string? RatingAgeLimits { get; set; }
         public IEnumerable<Genre> Genres { get; set; }
         public IEnumerable<Country> Countries { get; set; }
     }

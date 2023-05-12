@@ -1,4 +1,5 @@
 ﻿using IMS.Services;
+using System.Text.Json.Serialization;
 
 namespace IMS.Models.ResponseViewModels
 {
@@ -34,10 +35,12 @@ namespace IMS.Models.ResponseViewModels
         public string? ShortDescription { get; set; }
         public string? EditorAnnotation { get; set; }
         public bool IsTicketsAvailable { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ProductionStatusEnum? ProductionStatus { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public TypeEnum? Type { get; set; }
         public string? RatingMpaa { get; set; }
-        public int? RatingAgeLimits { get; set; }
+        public string? RatingAgeLimits { get; set; }
         public bool? HasImax { get; set; }
         public bool? Has3D { get; set; }
         public string LastSync { get; set; }
@@ -46,33 +49,17 @@ namespace IMS.Models.ResponseViewModels
         public bool? Serial { get; set; }
         public bool? ShortFilm { get; set; }
         public bool? Completed { get; set; }
-        public IEnumerable<Genre> Genres { get; set; }
-        public IEnumerable<Country> Countries { get; set; }
-
-        public class ProductionStatusEnum : Enumeration
+        public IEnumerable<GenreResponse> Genres { get; set; }
+        public IEnumerable<CountryResponse> Countries { get; set; }
+        public enum ProductionStatusEnum { FILMING, PRE_PRODUCTION, COMPLETED, ANNOUNCED, UNKNOWN, POST_PRODUCTION }
+        public enum TypeEnum { FILM, VIDEO, TV_SERIES, MINI_SERIES, TV_SHOW }
+        public class CountryResponse
         {
-            public static ProductionStatusEnum Filming => new(1, "FILMING");
-            public static ProductionStatusEnum PreProduction => new(2, "PRE_PRODUCTION");
-            public static ProductionStatusEnum Completed => new(3, "COMPLETED");
-            public static ProductionStatusEnum Announced => new(4, "ANNOUNCED");
-            public static ProductionStatusEnum Unknown => new(5, "UNKNOWN");
-            public static ProductionStatusEnum PostProduction => new(6, "POST_PRODUCTION");
-            public ProductionStatusEnum(int id, string name)
-                : base(id, name)
-            {
-            }
+            public string Country { get; set; }
         }
-        public class TypeEnum : Enumeration
+        public class GenreResponse
         {
-            public static TypeEnum Film => new(1, "FILM");
-            public static TypeEnum Video => new(2, "VIDEO");
-            public static TypeEnum TvSeries => new(3, "TV_SERIES");
-            public static TypeEnum MiniSeries => new(4, "MINI_SERIES");
-            public static TypeEnum TvShow => new(5, "TV_SHOW");
-            public TypeEnum(int id, string name)
-                : base(id, name)
-            {
-            }
+            public string Genre { get; set; }
         }
     }
 }

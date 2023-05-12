@@ -14,7 +14,6 @@ namespace IMS.Controllers
     {
         private readonly ApplicationDbContext db;
         private readonly ILogger<MoviesController> logger;
-        private bool filtersInDatabase = false;
         private string defaultCountry;
         private string defaultGenre;
 
@@ -26,7 +25,7 @@ namespace IMS.Controllers
         [Route("Movies/View")]
         public IActionResult View()
         {
-            if (filtersInDatabase)
+            if (db.Countries.Count() != 0 && db.Genres.Count() != 0)
                 return RedirectToAction("View", new { id = 301 });
 
             using(var client = new HttpClient())
@@ -50,13 +49,19 @@ namespace IMS.Controllers
                         {
                             defaultCountry = filtersResponse.Countries.FirstOrDefault().Country;
                             defaultGenre = filtersResponse.Genres.FirstOrDefault().Genre;
-                            foreach (var responseVal in filtersResponse.Countries)
+                            if (db.Countries.Count() == 0)
                             {
-                                db.Countries.Add(new Country { Name = responseVal.Country });
+                                foreach (var responseVal in filtersResponse.Countries)
+                                {
+                                    db.Countries.Add(new Country { Name = responseVal.Country });
+                                }
                             }
-                            foreach (var responseVal in filtersResponse.Genres)
+                            if (db.Genres.Count() == 0)
                             {
-                                db.Genres.Add(new Genre { Name = responseVal.Genre });
+                                foreach (var responseVal in filtersResponse.Genres)
+                                {
+                                    db.Genres.Add(new Genre { Name = responseVal.Genre });
+                                }
                             }
                             db.SaveChanges();
                         }
@@ -64,8 +69,8 @@ namespace IMS.Controllers
                         {
                             logger.LogError(ex.Message);
                             transaction.Rollback();
+                            return RedirectToAction("Index", "Home");
                         }
-                        filtersInDatabase = true;
                         transaction.Commit();
                     }
                 }
@@ -81,9 +86,9 @@ namespace IMS.Controllers
 
             return View();
         }
-        //[Route("Movies/View/{id?}/{country?}/{genre?}/{min_rating?}/{order?}/{min_date?}")]
         [Route("Movies/View/{id?}")]
-        public IActionResult View(int? id)//(string? country, string? genre, float? min_rating, int? order, int? min_date)
+        [Route("Movies/View/{id?}/{country?}/{genre?}/{min_rating?}/{order?}/{min_date?}")]
+        public IActionResult View(int? id, string? country, string? genre, float? min_rating, int? order, int? min_date)
         {
             List<Movie> movies = new List<Movie>();
 
@@ -135,6 +140,16 @@ namespace IMS.Controllers
                             //    });
                             //}
                             var responseVal = content.Result;
+                            List<Genre> genresResponse = new List<Genre>();
+                            foreach(var item in responseVal.Genres) 
+                            {
+                                genresResponse.Add(new Genre { Name = item.Genre });
+                            }
+                            List<Country> countriesResponse = new List<Country>();
+                            foreach (var item in responseVal.Countries)
+                            {
+                                countriesResponse.Add(new Country { Name = item.Country });
+                            }
                             movies.Add(new Movie
                             {
                                 NameRu = responseVal.NameRu,
@@ -152,8 +167,8 @@ namespace IMS.Controllers
                                 FilmLenght = responseVal.FilmLenght,
                                 EditorAnnotation = responseVal.EditorAnnotation,
                                 RatingAgeLimits = responseVal.RatingAgeLimits,
-                                Genres = responseVal.Genres,
-                                Countries = responseVal.Countries
+                                Genres = genresResponse,
+                                Countries = countriesResponse
 
                             });
                             db.Movies.AddRange(movies.AsEnumerable());
@@ -163,7 +178,7 @@ namespace IMS.Controllers
                         {
                             logger.LogError(ex.Message);
                             transaction.Rollback();
-                            return View();
+                            return RedirectToAction("Index", "Home");
                         }
                         transaction.Commit();
                     }
