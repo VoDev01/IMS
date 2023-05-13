@@ -22,6 +22,36 @@ namespace IMS.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("CountryMovie", b =>
+                {
+                    b.Property<int>("CountriesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MoviesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CountriesId", "MoviesId");
+
+                    b.HasIndex("MoviesId");
+
+                    b.ToTable("CountryMovie");
+                });
+
+            modelBuilder.Entity("GenreMovie", b =>
+                {
+                    b.Property<int>("GenresId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MoviesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("GenresId", "MoviesId");
+
+                    b.HasIndex("MoviesId");
+
+                    b.ToTable("GenreMovie");
+                });
+
             modelBuilder.Entity("IMS.Models.Country", b =>
                 {
                     b.Property<int>("Id")
@@ -30,9 +60,6 @@ namespace IMS.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("MovieId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(75)
@@ -40,9 +67,1249 @@ namespace IMS.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MovieId");
-
                     b.ToTable("Countries");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "США"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Швейцария"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Франция"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Польша"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Великобритания"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Швеция"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Индия"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Испания"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "Германия"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Name = "Италия"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Name = "Гонконг"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Name = "Германия (ФРГ)"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Name = "Австралия"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Name = "Канада"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Name = "Мексика"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Name = "Япония"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Name = "Дания"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Name = "Чехия"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Name = "Ирландия"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Name = "Люксембург"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Name = "Китай"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Name = "Норвегия"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Name = "Нидерланды"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Name = "Аргентина"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Name = "Финляндия"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Name = "Босния и Герцеговина"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Name = "Австрия"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Name = "Тайвань"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Name = "Новая Зеландия"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Name = "Бразилия"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Name = "Чехословакия"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Name = "Мальта"
+                        },
+                        new
+                        {
+                            Id = 33,
+                            Name = "СССР"
+                        },
+                        new
+                        {
+                            Id = 34,
+                            Name = "Россия"
+                        },
+                        new
+                        {
+                            Id = 35,
+                            Name = "Югославия"
+                        },
+                        new
+                        {
+                            Id = 36,
+                            Name = "Португалия"
+                        },
+                        new
+                        {
+                            Id = 37,
+                            Name = "Румыния"
+                        },
+                        new
+                        {
+                            Id = 38,
+                            Name = "Хорватия"
+                        },
+                        new
+                        {
+                            Id = 39,
+                            Name = "ЮАР"
+                        },
+                        new
+                        {
+                            Id = 40,
+                            Name = "Куба"
+                        },
+                        new
+                        {
+                            Id = 41,
+                            Name = "Колумбия"
+                        },
+                        new
+                        {
+                            Id = 42,
+                            Name = "Израиль"
+                        },
+                        new
+                        {
+                            Id = 43,
+                            Name = "Намибия"
+                        },
+                        new
+                        {
+                            Id = 44,
+                            Name = "Турция"
+                        },
+                        new
+                        {
+                            Id = 45,
+                            Name = "Бельгия"
+                        },
+                        new
+                        {
+                            Id = 46,
+                            Name = "Сальвадор"
+                        },
+                        new
+                        {
+                            Id = 47,
+                            Name = "Исландия"
+                        },
+                        new
+                        {
+                            Id = 48,
+                            Name = "Венгрия"
+                        },
+                        new
+                        {
+                            Id = 49,
+                            Name = "Корея Южная"
+                        },
+                        new
+                        {
+                            Id = 50,
+                            Name = "Лихтенштейн"
+                        },
+                        new
+                        {
+                            Id = 51,
+                            Name = "Болгария"
+                        },
+                        new
+                        {
+                            Id = 52,
+                            Name = "Филиппины"
+                        },
+                        new
+                        {
+                            Id = 53,
+                            Name = "Доминикана"
+                        },
+                        new
+                        {
+                            Id = 54,
+                            Name = ""
+                        },
+                        new
+                        {
+                            Id = 55,
+                            Name = "Марокко"
+                        },
+                        new
+                        {
+                            Id = 56,
+                            Name = "Таиланд"
+                        },
+                        new
+                        {
+                            Id = 57,
+                            Name = "Кения"
+                        },
+                        new
+                        {
+                            Id = 58,
+                            Name = "Пакистан"
+                        },
+                        new
+                        {
+                            Id = 59,
+                            Name = "Иран"
+                        },
+                        new
+                        {
+                            Id = 60,
+                            Name = "Панама"
+                        },
+                        new
+                        {
+                            Id = 61,
+                            Name = "Аруба"
+                        },
+                        new
+                        {
+                            Id = 62,
+                            Name = "Ямайка"
+                        },
+                        new
+                        {
+                            Id = 63,
+                            Name = "Греция"
+                        },
+                        new
+                        {
+                            Id = 64,
+                            Name = "Тунис"
+                        },
+                        new
+                        {
+                            Id = 65,
+                            Name = "Кыргызстан"
+                        },
+                        new
+                        {
+                            Id = 66,
+                            Name = "Пуэрто Рико"
+                        },
+                        new
+                        {
+                            Id = 67,
+                            Name = "Казахстан"
+                        },
+                        new
+                        {
+                            Id = 68,
+                            Name = "Югославия (ФР)"
+                        },
+                        new
+                        {
+                            Id = 69,
+                            Name = "Алжир"
+                        },
+                        new
+                        {
+                            Id = 70,
+                            Name = "Германия (ГДР)"
+                        },
+                        new
+                        {
+                            Id = 71,
+                            Name = "Сингапур"
+                        },
+                        new
+                        {
+                            Id = 72,
+                            Name = "Словакия"
+                        },
+                        new
+                        {
+                            Id = 73,
+                            Name = "Афганистан"
+                        },
+                        new
+                        {
+                            Id = 74,
+                            Name = "Индонезия"
+                        },
+                        new
+                        {
+                            Id = 75,
+                            Name = "Перу"
+                        },
+                        new
+                        {
+                            Id = 76,
+                            Name = "Бермуды"
+                        },
+                        new
+                        {
+                            Id = 77,
+                            Name = "Монако"
+                        },
+                        new
+                        {
+                            Id = 78,
+                            Name = "Зимбабве"
+                        },
+                        new
+                        {
+                            Id = 79,
+                            Name = "Вьетнам"
+                        },
+                        new
+                        {
+                            Id = 80,
+                            Name = "Антильские Острова"
+                        },
+                        new
+                        {
+                            Id = 81,
+                            Name = "Саудовская Аравия"
+                        },
+                        new
+                        {
+                            Id = 82,
+                            Name = "Танзания"
+                        },
+                        new
+                        {
+                            Id = 83,
+                            Name = "Ливия"
+                        },
+                        new
+                        {
+                            Id = 84,
+                            Name = "Ливан"
+                        },
+                        new
+                        {
+                            Id = 85,
+                            Name = "Кувейт"
+                        },
+                        new
+                        {
+                            Id = 86,
+                            Name = "Египет"
+                        },
+                        new
+                        {
+                            Id = 87,
+                            Name = "Литва"
+                        },
+                        new
+                        {
+                            Id = 88,
+                            Name = "Венесуэла"
+                        },
+                        new
+                        {
+                            Id = 89,
+                            Name = "Словения"
+                        },
+                        new
+                        {
+                            Id = 90,
+                            Name = "Чили"
+                        },
+                        new
+                        {
+                            Id = 91,
+                            Name = "Багамы"
+                        },
+                        new
+                        {
+                            Id = 92,
+                            Name = "Эквадор"
+                        },
+                        new
+                        {
+                            Id = 93,
+                            Name = "Коста-Рика"
+                        },
+                        new
+                        {
+                            Id = 94,
+                            Name = "Кипр"
+                        },
+                        new
+                        {
+                            Id = 95,
+                            Name = "Уругвай"
+                        },
+                        new
+                        {
+                            Id = 96,
+                            Name = "Ирак"
+                        },
+                        new
+                        {
+                            Id = 97,
+                            Name = "Мартиника"
+                        },
+                        new
+                        {
+                            Id = 98,
+                            Name = "Эстония"
+                        },
+                        new
+                        {
+                            Id = 99,
+                            Name = "ОАЭ"
+                        },
+                        new
+                        {
+                            Id = 100,
+                            Name = "Бангладеш"
+                        },
+                        new
+                        {
+                            Id = 101,
+                            Name = "Македония"
+                        },
+                        new
+                        {
+                            Id = 102,
+                            Name = "Гвинея"
+                        },
+                        new
+                        {
+                            Id = 103,
+                            Name = "Иордания"
+                        },
+                        new
+                        {
+                            Id = 104,
+                            Name = "Латвия"
+                        },
+                        new
+                        {
+                            Id = 105,
+                            Name = "Армения"
+                        },
+                        new
+                        {
+                            Id = 106,
+                            Name = "Украина"
+                        },
+                        new
+                        {
+                            Id = 107,
+                            Name = "Сирия"
+                        },
+                        new
+                        {
+                            Id = 108,
+                            Name = "Шри-Ланка"
+                        },
+                        new
+                        {
+                            Id = 109,
+                            Name = "Нигерия"
+                        },
+                        new
+                        {
+                            Id = 110,
+                            Name = "Берег Слоновой кости"
+                        },
+                        new
+                        {
+                            Id = 111,
+                            Name = "Грузия"
+                        },
+                        new
+                        {
+                            Id = 112,
+                            Name = "Сенегал"
+                        },
+                        new
+                        {
+                            Id = 113,
+                            Name = "Монголия"
+                        },
+                        new
+                        {
+                            Id = 114,
+                            Name = "Габон"
+                        },
+                        new
+                        {
+                            Id = 115,
+                            Name = "Замбия"
+                        },
+                        new
+                        {
+                            Id = 116,
+                            Name = "Албания"
+                        },
+                        new
+                        {
+                            Id = 117,
+                            Name = "Камерун"
+                        },
+                        new
+                        {
+                            Id = 118,
+                            Name = "Буркина-Фасо"
+                        },
+                        new
+                        {
+                            Id = 119,
+                            Name = "Узбекистан"
+                        },
+                        new
+                        {
+                            Id = 120,
+                            Name = "Малайзия"
+                        },
+                        new
+                        {
+                            Id = 121,
+                            Name = "Сербия"
+                        },
+                        new
+                        {
+                            Id = 122,
+                            Name = "Гана"
+                        },
+                        new
+                        {
+                            Id = 123,
+                            Name = "Таджикистан"
+                        },
+                        new
+                        {
+                            Id = 124,
+                            Name = "Гаити"
+                        },
+                        new
+                        {
+                            Id = 125,
+                            Name = "Конго (ДРК)"
+                        },
+                        new
+                        {
+                            Id = 126,
+                            Name = "Гватемала"
+                        },
+                        new
+                        {
+                            Id = 127,
+                            Name = "Российская империя"
+                        },
+                        new
+                        {
+                            Id = 128,
+                            Name = "Беларусь"
+                        },
+                        new
+                        {
+                            Id = 129,
+                            Name = "Молдова"
+                        },
+                        new
+                        {
+                            Id = 130,
+                            Name = "Азербайджан"
+                        },
+                        new
+                        {
+                            Id = 131,
+                            Name = "Палестина"
+                        },
+                        new
+                        {
+                            Id = 132,
+                            Name = "Оккупированная Палестинская территория"
+                        },
+                        new
+                        {
+                            Id = 133,
+                            Name = "Корея Северная"
+                        },
+                        new
+                        {
+                            Id = 134,
+                            Name = "Никарагуа"
+                        },
+                        new
+                        {
+                            Id = 135,
+                            Name = "Камбоджа"
+                        },
+                        new
+                        {
+                            Id = 136,
+                            Name = "Ангола"
+                        },
+                        new
+                        {
+                            Id = 137,
+                            Name = "Сербия и Черногория"
+                        },
+                        new
+                        {
+                            Id = 138,
+                            Name = "Непал"
+                        },
+                        new
+                        {
+                            Id = 139,
+                            Name = "Бенин"
+                        },
+                        new
+                        {
+                            Id = 140,
+                            Name = "Гваделупа"
+                        },
+                        new
+                        {
+                            Id = 141,
+                            Name = "Гренландия"
+                        },
+                        new
+                        {
+                            Id = 142,
+                            Name = "Гвинея-Бисау"
+                        },
+                        new
+                        {
+                            Id = 143,
+                            Name = "Макао"
+                        },
+                        new
+                        {
+                            Id = 144,
+                            Name = "Парагвай"
+                        },
+                        new
+                        {
+                            Id = 145,
+                            Name = "Мавритания"
+                        },
+                        new
+                        {
+                            Id = 146,
+                            Name = "Руанда"
+                        },
+                        new
+                        {
+                            Id = 147,
+                            Name = "Фарерские острова"
+                        },
+                        new
+                        {
+                            Id = 148,
+                            Name = "Кот-д’Ивуар"
+                        },
+                        new
+                        {
+                            Id = 149,
+                            Name = "Гибралтар"
+                        },
+                        new
+                        {
+                            Id = 150,
+                            Name = "Ботсвана"
+                        },
+                        new
+                        {
+                            Id = 151,
+                            Name = "Боливия"
+                        },
+                        new
+                        {
+                            Id = 152,
+                            Name = "Мадагаскар"
+                        },
+                        new
+                        {
+                            Id = 153,
+                            Name = "Кабо-Верде"
+                        },
+                        new
+                        {
+                            Id = 154,
+                            Name = "Чад"
+                        },
+                        new
+                        {
+                            Id = 155,
+                            Name = "Мали"
+                        },
+                        new
+                        {
+                            Id = 156,
+                            Name = "Фиджи"
+                        },
+                        new
+                        {
+                            Id = 157,
+                            Name = "Бутан"
+                        },
+                        new
+                        {
+                            Id = 158,
+                            Name = "Барбадос"
+                        },
+                        new
+                        {
+                            Id = 159,
+                            Name = "Тринидад и Тобаго"
+                        },
+                        new
+                        {
+                            Id = 160,
+                            Name = "Мозамбик"
+                        },
+                        new
+                        {
+                            Id = 161,
+                            Name = "Заир"
+                        },
+                        new
+                        {
+                            Id = 162,
+                            Name = "Андорра"
+                        },
+                        new
+                        {
+                            Id = 163,
+                            Name = "Туркменистан"
+                        },
+                        new
+                        {
+                            Id = 164,
+                            Name = "Гайана"
+                        },
+                        new
+                        {
+                            Id = 165,
+                            Name = "Корея"
+                        },
+                        new
+                        {
+                            Id = 166,
+                            Name = "Нигер"
+                        },
+                        new
+                        {
+                            Id = 167,
+                            Name = "Конго"
+                        },
+                        new
+                        {
+                            Id = 168,
+                            Name = "Того"
+                        },
+                        new
+                        {
+                            Id = 169,
+                            Name = "Ватикан"
+                        },
+                        new
+                        {
+                            Id = 170,
+                            Name = "Черногория"
+                        },
+                        new
+                        {
+                            Id = 171,
+                            Name = "Бурунди"
+                        },
+                        new
+                        {
+                            Id = 172,
+                            Name = "Папуа - Новая Гвинея"
+                        },
+                        new
+                        {
+                            Id = 173,
+                            Name = "Бахрейн"
+                        },
+                        new
+                        {
+                            Id = 174,
+                            Name = "Гондурас"
+                        },
+                        new
+                        {
+                            Id = 175,
+                            Name = "Судан"
+                        },
+                        new
+                        {
+                            Id = 176,
+                            Name = "Эфиопия"
+                        },
+                        new
+                        {
+                            Id = 177,
+                            Name = "Йемен"
+                        },
+                        new
+                        {
+                            Id = 178,
+                            Name = "Вьетнам Северный"
+                        },
+                        new
+                        {
+                            Id = 179,
+                            Name = "Суринам"
+                        },
+                        new
+                        {
+                            Id = 180,
+                            Name = "Маврикий"
+                        },
+                        new
+                        {
+                            Id = 181,
+                            Name = "Белиз"
+                        },
+                        new
+                        {
+                            Id = 182,
+                            Name = "Либерия"
+                        },
+                        new
+                        {
+                            Id = 183,
+                            Name = "Лесото"
+                        },
+                        new
+                        {
+                            Id = 184,
+                            Name = "Уганда"
+                        },
+                        new
+                        {
+                            Id = 185,
+                            Name = "Каймановы острова"
+                        },
+                        new
+                        {
+                            Id = 186,
+                            Name = "Антигуа и Барбуда"
+                        },
+                        new
+                        {
+                            Id = 187,
+                            Name = "Западная Сахара"
+                        },
+                        new
+                        {
+                            Id = 188,
+                            Name = "Сан-Марино"
+                        },
+                        new
+                        {
+                            Id = 189,
+                            Name = "Гуам"
+                        },
+                        new
+                        {
+                            Id = 190,
+                            Name = "Косово"
+                        },
+                        new
+                        {
+                            Id = 191,
+                            Name = "Лаос"
+                        },
+                        new
+                        {
+                            Id = 192,
+                            Name = "Катар"
+                        },
+                        new
+                        {
+                            Id = 193,
+                            Name = "Оман"
+                        },
+                        new
+                        {
+                            Id = 194,
+                            Name = "Американские Виргинские острова"
+                        },
+                        new
+                        {
+                            Id = 195,
+                            Name = "Сиам"
+                        },
+                        new
+                        {
+                            Id = 196,
+                            Name = "Сьерра-Леоне"
+                        },
+                        new
+                        {
+                            Id = 197,
+                            Name = "Эритрея"
+                        },
+                        new
+                        {
+                            Id = 198,
+                            Name = "Сомали"
+                        },
+                        new
+                        {
+                            Id = 199,
+                            Name = "Доминика"
+                        },
+                        new
+                        {
+                            Id = 200,
+                            Name = "Бирма"
+                        },
+                        new
+                        {
+                            Id = 201,
+                            Name = "Реюньон"
+                        },
+                        new
+                        {
+                            Id = 202,
+                            Name = "Федеративные Штаты Микронезии"
+                        },
+                        new
+                        {
+                            Id = 203,
+                            Name = "Самоа"
+                        },
+                        new
+                        {
+                            Id = 204,
+                            Name = "Американское Самоа"
+                        },
+                        new
+                        {
+                            Id = 205,
+                            Name = "Свазиленд"
+                        },
+                        new
+                        {
+                            Id = 206,
+                            Name = "Французская Полинезия"
+                        },
+                        new
+                        {
+                            Id = 207,
+                            Name = "Мьянма"
+                        },
+                        new
+                        {
+                            Id = 208,
+                            Name = "Новая Каледония"
+                        },
+                        new
+                        {
+                            Id = 209,
+                            Name = "Французская Гвиана"
+                        },
+                        new
+                        {
+                            Id = 210,
+                            Name = "Сент-Винсент и Гренадины"
+                        },
+                        new
+                        {
+                            Id = 211,
+                            Name = "Малави"
+                        },
+                        new
+                        {
+                            Id = 212,
+                            Name = "Экваториальная Гвинея"
+                        },
+                        new
+                        {
+                            Id = 213,
+                            Name = "Коморы"
+                        },
+                        new
+                        {
+                            Id = 214,
+                            Name = "Кирибати"
+                        },
+                        new
+                        {
+                            Id = 215,
+                            Name = "Тувалу"
+                        },
+                        new
+                        {
+                            Id = 216,
+                            Name = "Тимор-Лесте"
+                        },
+                        new
+                        {
+                            Id = 217,
+                            Name = "ЦАР"
+                        },
+                        new
+                        {
+                            Id = 218,
+                            Name = "Тонга"
+                        },
+                        new
+                        {
+                            Id = 219,
+                            Name = "Гренада"
+                        },
+                        new
+                        {
+                            Id = 220,
+                            Name = "Гамбия"
+                        },
+                        new
+                        {
+                            Id = 221,
+                            Name = "Антарктида"
+                        },
+                        new
+                        {
+                            Id = 222,
+                            Name = "Острова Кука"
+                        },
+                        new
+                        {
+                            Id = 223,
+                            Name = "Остров Мэн"
+                        },
+                        new
+                        {
+                            Id = 224,
+                            Name = "Внешние малые острова США"
+                        },
+                        new
+                        {
+                            Id = 225,
+                            Name = "Монтсеррат"
+                        },
+                        new
+                        {
+                            Id = 226,
+                            Name = "Маршалловы острова"
+                        },
+                        new
+                        {
+                            Id = 227,
+                            Name = "Бруней-Даруссалам"
+                        },
+                        new
+                        {
+                            Id = 228,
+                            Name = "Сейшельские острова"
+                        },
+                        new
+                        {
+                            Id = 229,
+                            Name = "Палау"
+                        },
+                        new
+                        {
+                            Id = 230,
+                            Name = "Сент-Люсия"
+                        },
+                        new
+                        {
+                            Id = 231,
+                            Name = "Вануату"
+                        },
+                        new
+                        {
+                            Id = 232,
+                            Name = "Мальдивы"
+                        },
+                        new
+                        {
+                            Id = 233,
+                            Name = "Босния"
+                        },
+                        new
+                        {
+                            Id = 234,
+                            Name = "Уоллис и Футуна"
+                        },
+                        new
+                        {
+                            Id = 235,
+                            Name = "Белоруссия"
+                        },
+                        new
+                        {
+                            Id = 236,
+                            Name = "Киргизия"
+                        },
+                        new
+                        {
+                            Id = 239,
+                            Name = "Джибути"
+                        },
+                        new
+                        {
+                            Id = 240,
+                            Name = "Виргинские Острова (США)"
+                        },
+                        new
+                        {
+                            Id = 241,
+                            Name = "Северная Македония"
+                        },
+                        new
+                        {
+                            Id = 242,
+                            Name = "Виргинские Острова (Великобритания)"
+                        },
+                        new
+                        {
+                            Id = 3545269,
+                            Name = "Сент-Люсия "
+                        },
+                        new
+                        {
+                            Id = 3781461,
+                            Name = "Сент-Китс и Невис"
+                        },
+                        new
+                        {
+                            Id = 3985922,
+                            Name = "Соломоновы Острова"
+                        },
+                        new
+                        {
+                            Id = 4336645,
+                            Name = "Виргинские Острова"
+                        },
+                        new
+                        {
+                            Id = 7801402,
+                            Name = "Фолклендские острова"
+                        },
+                        new
+                        {
+                            Id = 10842163,
+                            Name = "Остров Святой Елены"
+                        },
+                        new
+                        {
+                            Id = 32518739,
+                            Name = "острова Теркс и Кайкос"
+                        },
+                        new
+                        {
+                            Id = 47738117,
+                            Name = "Мелкие отдаленные острова США"
+                        });
                 });
 
             modelBuilder.Entity("IMS.Models.Genre", b =>
@@ -53,9 +1320,6 @@ namespace IMS.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("MovieId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(25)
@@ -63,9 +1327,174 @@ namespace IMS.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MovieId");
-
                     b.ToTable("Genres");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "триллер"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "драма"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "криминал"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "мелодрама"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "детектив"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "фантастика"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "приключения"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "биография"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Name = "фильм-нуар"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Name = "вестерн"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Name = "боевик"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Name = "фэнтези"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Name = "комедия"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Name = "военный"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Name = "история"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Name = "музыка"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Name = "ужасы"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Name = "мультфильм"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Name = "семейный"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Name = "мюзикл"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Name = "спорт"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Name = "документальный"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Name = "короткометражка"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Name = "аниме"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Name = ""
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Name = "новости"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Name = "концерт"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Name = "для взрослых"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Name = "церемония"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Name = "реальное ТВ"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Name = "игра"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Name = "ток-шоу"
+                        },
+                        new
+                        {
+                            Id = 33,
+                            Name = "детский"
+                        });
                 });
 
             modelBuilder.Entity("IMS.Models.Movie", b =>
@@ -213,18 +1642,34 @@ namespace IMS.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("IMS.Models.Country", b =>
+            modelBuilder.Entity("CountryMovie", b =>
                 {
+                    b.HasOne("IMS.Models.Country", null)
+                        .WithMany()
+                        .HasForeignKey("CountriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("IMS.Models.Movie", null)
-                        .WithMany("Countries")
-                        .HasForeignKey("MovieId");
+                        .WithMany()
+                        .HasForeignKey("MoviesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("IMS.Models.Genre", b =>
+            modelBuilder.Entity("GenreMovie", b =>
                 {
+                    b.HasOne("IMS.Models.Genre", null)
+                        .WithMany()
+                        .HasForeignKey("GenresId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("IMS.Models.Movie", null)
-                        .WithMany("Genres")
-                        .HasForeignKey("MovieId");
+                        .WithMany()
+                        .HasForeignKey("MoviesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IMS.Models.Rating", b =>
@@ -255,13 +1700,6 @@ namespace IMS.Migrations
                         .IsRequired();
 
                     b.Navigation("Country");
-                });
-
-            modelBuilder.Entity("IMS.Models.Movie", b =>
-                {
-                    b.Navigation("Countries");
-
-                    b.Navigation("Genres");
                 });
 
             modelBuilder.Entity("IMS.Models.User", b =>
