@@ -7,7 +7,7 @@ namespace IMS.Models
         [Key]
         public int Id { get; set; }
         public int RatingNum { get; set; }
-        public Movie Movie { get; set; }
+        public MoviePage Movie { get; set; }
         [MaxLength(10000)]
         [MinLength(10)]
         public string? RatingComment { get; set; }

@@ -5,6 +5,8 @@ using IMS.Models.ResponseViewModels;
 using IMS.Models;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
+using IMS.Models.Interfaces;
+using IMS.Models.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,8 +15,12 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.
-    GetConnectionString("Default")
-    ));
+    GetConnectionString("Default")));
+
+builder.Services.AddTransient<IMoviesPages, MoviesPagesRepository>();
+builder.Services.AddTransient<IMoviesItems, MoviesItemsRepository>();
+builder.Services.AddTransient<ICountries, CountriesRepository>();
+builder.Services.AddTransient<IGenres, GenresRepository>();
 
 builder.Services.AddLogging(logging => logging.AddConsole());
 builder.Services.AddSingleton<Logger<MoviesController>>();
