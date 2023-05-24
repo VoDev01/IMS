@@ -1,10 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using IMS.Controllers;
 using IMS.Data;
-using IMS.Models.ResponseViewModels;
-using IMS.Models;
-using Microsoft.Extensions.Logging;
-using System.Net.Http.Headers;
 using IMS.Models.Interfaces;
 using IMS.Models.Repositories;
 
@@ -17,10 +13,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
     builder.Configuration.
     GetConnectionString("Default")));
 
-builder.Services.AddTransient<IMoviesPages, MoviesPagesRepository>();
-builder.Services.AddTransient<IMoviesItems, MoviesItemsRepository>();
-builder.Services.AddTransient<ICountries, CountriesRepository>();
-builder.Services.AddTransient<IGenres, GenresRepository>();
+builder.Services.AddScoped<IMoviesPages, MoviesPagesRepository>();
+builder.Services.AddScoped<IMoviesItems, MoviesItemsRepository>();
+builder.Services.AddScoped<ICountries, CountriesRepository>();
+builder.Services.AddScoped<IGenres, GenresRepository>();
 
 builder.Services.AddLogging(logging => logging.AddConsole());
 builder.Services.AddSingleton<Logger<MoviesController>>();

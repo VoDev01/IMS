@@ -13,13 +13,18 @@ namespace IMS.Data
     {
         public ApplicationDbContext(DbContextOptions dbContextOptions) : base(dbContextOptions) 
         { }
+        public ApplicationDbContext(string connectionString) : base(GetOptions(connectionString))
+        { }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<MoviePage> MoviesPages { get; set; }
         public DbSet<MoviePageItem> MoviePageItems { get; set; }
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<User> Users { get; set; }
-
+        private static DbContextOptions GetOptions(string connectionString)
+        {
+            return SqlServerDbContextOptionsExtensions.UseSqlServer(new DbContextOptionsBuilder(), connectionString).Options;
+        }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             base.ConfigureConventions(configurationBuilder);

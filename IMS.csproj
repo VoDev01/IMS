@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <Reference Include="RepositoryLibrary">
-      <HintPath>..\..\RepositoryLibrary\RepositoryLibrary\bin\Debug\net6.0\RepositoryLibrary.dll</HintPath>
+      <HintPath>..\..\RepositoryLibrary\RepositoryLibrary\bin\Release\net6.0\RepositoryLibrary.dll</HintPath>
     </Reference>
     <Reference Include="WebAPIConsumeLibrary">
       <HintPath>..\..\WebAPIConsumeLibrary\WebAPIConsumeLibrary\bin\Release\net6.0\WebAPIConsumeLibrary.dll</HintPath>
