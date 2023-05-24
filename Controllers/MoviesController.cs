@@ -130,15 +130,16 @@ namespace IMS.Controllers
                 return View();
             }
         }
-
         [Route("Movies/Pages")]
+        [Route("Movies/Pages/{country?}/{genre?}/{order?}/{type?}/{imdbid?}/{keyword?}/{min_rating?}/{max_rating?}/{min_year?}/{max_year?}/{page?}")]
         [Route("Movies/Pages/{page}")]
-        public async Task<IActionResult> Pages(int page = 1)
+        public async Task<IActionResult> Pages(string? imdbid = "", string? keyword = "",
+            int? country = 1, int? genre = 1,
+            string? order = "RATING", string? type = "ALL",
+            int? min_rating = 0, int? max_rating = 10,
+            int? min_year = 1000, int? max_year = 3000,
+            int page = 1)
         {
-            int? country = 1; int? genre = 1;
-            string? order = "RATING"; string? type = "ALL";
-            int? min_rating = 0; int? max_rating = 10;
-            int? min_year = 1000; int? max_year = 3000;
             MoviePageItemViewModel moviePageItemsVM = new MoviePageItemViewModel();
             moviePageItemsVM.MoviePageItems = new List<MoviePageItem>();
             moviePageItemsVM.Countries = new List<Country>();
@@ -254,7 +255,7 @@ namespace IMS.Controllers
                         moviesItemsRepo.
                         GetAllWithInclude(m => m.Genres)
                         .Include(m => m.Countries)
-                        .Where(mi => page == mi.PageIndex).ToList();
+                        .Where(mi => page == mi.PageIndex && mi.Genres.Any(g => g.Id == genre) && mi.Countries.Any(c => c.Id == country)).ToList();
 
                         moviePageItemsVM.MoviePageItems = movieItems;
                         moviePageItemsVM.Countries = countriesRepo.GetAll().ToList();
@@ -283,150 +284,29 @@ namespace IMS.Controllers
             }
         }
         [Route("Movies/Pages")]
+        [Route("Movies/Pages/{country?}/{genre?}/{order?}/{type?}/{imdbid?}/{keyword?}/{min_rating?}/{max_rating?}/{min_year?}/{max_year?}/{page?}")]
         [HttpPost]
-        public async Task<IActionResult> Pages(string? imdbid, string? keyword, 
+        public IActionResult PostPages(string? imdbid = "", string? keyword = "",
             int? country = 1, int? genre = 1,
-            string? order = "RATING", string? type = "ALL", 
-            int? min_rating = 0, int? max_rating = 10, 
-            int? min_year = 1000, int? max_year = 3000, 
+            string? order = "RATING", string? type = "ALL",
+            int? min_rating = 0, int? max_rating = 10,
+            int? min_year = 1000, int? max_year = 3000,
             int page = 1)
         {
-            MoviePageItemViewModel moviePageItemsVM = new MoviePageItemViewModel();
-            moviePageItemsVM.MoviePageItems = new List<MoviePageItem>();
-            moviePageItemsVM.Countries = new List<Country>();
-            moviePageItemsVM.Genres = new List<Genre>();
-
-            Func<Task<FilmSearchByFiltersResponse>, Task> ResponseToDb = async (content) => {
-                using (var db = new ApplicationDbContext(connectionString))
-                {
-                    IMoviesItems moviesItemsRepo = new MoviesItemsRepository(db);
-                    IGenres genresRepo = new GenresRepository(db);
-                    ICountries countriesRepo = new CountriesRepository(db);
-                    using (var transaction = moviesItemsRepo.BeginTransaction())
-                    {
-                        try
-                        {
-                            var responseVal = content.Result;
-                            moviePageItemsVM.Total = responseVal.Total;
-                            moviePageItemsVM.TotalPages = responseVal.TotalPages;
-                            foreach (var movieItem in responseVal.Items)
-                            {
-                                if (moviesItemsRepo.IfAny(m => m.KinopoiskId == movieItem.KinopoiskId)
-                                || moviesItemsRepo.IfAny(m => m.ImdbId == movieItem.ImdbId))
-                                {
-                                    logger.LogWarning($"Database already has record {movieItem.NameRu}.");
-                                    continue;
-                                }
-                                List<Genre> genresResponse = new List<Genre>();
-                                foreach (var item in movieItem.Genres)
-                                {
-                                    Genre? genre = genresRepo.FindSetByCondition(g => g.Name == item.Genre).FirstOrDefault();
-                                    if (genre == null)
-                                    {
-                                        logger.LogWarning($"Requested genre {item.Genre} was not found in database");
-                                        continue;
-                                    }
-                                    genresResponse.Add(genre);
-                                }
-                                List<Country> countriesResponse = new List<Country>();
-                                foreach (var item in movieItem.Countries)
-                                {
-                                    Country? country = countriesRepo.FindSetByCondition(c => c.Name == item.Country).FirstOrDefault();
-                                    if (country == null)
-                                    {
-                                        logger.LogWarning($"Requested country {item.Country} was not found in database.");
-                                        continue;
-                                    }
-                                    countriesResponse.Add(country);
-                                }
-                                if (countriesResponse.Count == 0 || genresResponse.Count == 0)
-                                {
-                                    logger.LogError("Some data was not received from the request.");
-                                }
-                                MoviePageItem movieItemObj = new MoviePageItem
-                                {
-                                    NameRu = movieItem.NameRu,
-                                    NameEn = movieItem.NameEn,
-                                    KinopoiskId = movieItem.KinopoiskId,
-                                    ImdbId = movieItem.ImdbId,
-                                    PosterUrl = movieItem.PosterUrl,
-                                    PosterUrlPreview = movieItem.PosterUrlPreview,
-                                    RatingImdb = movieItem.RatingImdb,
-                                    RatingKinopoisk = movieItem.RatingKinopoisk,
-                                    Year = movieItem.Year,
-                                    Type = movieItem.Type.ToString(),
-                                    Genres = genresResponse,
-                                    Countries = countriesResponse,
-                                    PageIndex = page
-                                };
-                                await moviesItemsRepo.CreateAsync(movieItemObj);
-                            }
-                            await moviesItemsRepo.SaveAsync();
-                            transaction.Commit();
-                            return;
-                        }
-                        catch (Exception e)
-                        {
-                            logger.LogError(e.Message);
-                            transaction.Rollback();
-                            return;
-                        }
-                    }
-                }
-            };
-            Dictionary<string, string> queryStrKeyValue = new Dictionary<string, string>
+            return RedirectToAction("Pages", "Movies", new
             {
-                { "countries", country.ToString() ?? string.Empty },
-                { "genres", genre.ToString() ?? string.Empty },
-                { "order", order ?? string.Empty },
-                { "type", type ?? string.Empty },
-                { "ratingFrom", min_rating.ToString() ?? string.Empty },
-                { "ratingTo", max_rating.ToString() ?? string.Empty },
-                { "yearFrom", min_year.ToString() ?? string.Empty },
-                { "yearTo", max_year.ToString() ?? string.Empty },
-                { "imdbid", imdbid ?? string.Empty },
-                { "keyword", keyword ?? string.Empty },
-                { "page", page.ToString() ?? string.Empty }
-            };
-            QueryBuilder queryBuilder = new QueryBuilder(queryStrKeyValue);
-            if (await WebAPIConsume.Consume<MoviePage, FilmSearchByFiltersResponse>(
-                $"films/" + queryBuilder.ToQueryString().Value,
-                ResponseToDb,
-                logger))
-            {
-                using (var db = new ApplicationDbContext(connectionString))
-                {
-                    try
-                    {
-                        IMoviesItems moviesItemsRepo = new MoviesItemsRepository(db);
-                        IGenres genresRepo = new GenresRepository(db);
-                        ICountries countriesRepo = new CountriesRepository(db);
-
-                        IEnumerable<MoviePageItem> movieItems =
-                        moviesItemsRepo.
-                        GetAllWithInclude(m => m.Genres)
-                        .Include(m => m.Countries)
-                        .Where(mi => page == mi.PageIndex).ToList();
-
-                        moviePageItemsVM.MoviePageItems = movieItems;
-                        moviePageItemsVM.Countries = countriesRepo.GetAll().ToList();
-                        moviePageItemsVM.Genres = genresRepo.GetAll().ToList();
-
-                        return View(moviePageItemsVM);
-                    }
-                    catch(Exception e)
-                    {
-                        logger.LogError(e.Message);
-                        ModelState.AddModelError("MoviePageItems", "Requested pages were not found.");
-                        return RedirectToAction("Index", "Home");
-                    }
-                }
-            }
-            else
-            {
-                ModelState.AddModelError("MoviePageItems", "Server error. Please contact administrator.");
-                return RedirectToAction("Movies", "Pages", new { page = 1 });
-            }
+                imdbid,
+                keyword,
+                country,
+                genre,
+                order,
+                type,
+                min_rating,
+                max_rating,
+                min_year,
+                max_year,
+                page
+            });
         }
     }
 }
