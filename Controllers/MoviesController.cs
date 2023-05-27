@@ -15,6 +15,7 @@ namespace IMS.Controllers
     {
         private readonly string connectionString;
         private readonly ILogger<MoviesController> logger;
+        private readonly int maxMoviesAtPage = 20;
         public MoviesController(ILogger<MoviesController> logger)
         {
             this.logger = logger;
@@ -108,7 +109,8 @@ namespace IMS.Controllers
             if (WebAPIConsume.Consume<MoviePage, Film>(
                     $"films/{id}",
                     ResponseToDb,
-                    logger).Result)
+                    logger).Result 
+                    && ModelState.IsValid)
             {
                 using (var db = new ApplicationDbContext(connectionString))
                 {
@@ -131,20 +133,8 @@ namespace IMS.Controllers
             }
         }
         [Route("Movies/Pages")]
-        [Route("Movies/Pages/{country?}/{genre?}/{order?}/{type?}/{imdbid?}/{keyword?}/{min_rating?}/{max_rating?}/{min_year?}/{max_year?}/{page?}")]
-        [Route("Movies/Pages/{page}")]
-        public async Task<IActionResult> Pages(string? imdbid = "", string? keyword = "",
-            int? country = 1, int? genre = 1,
-            string? order = "RATING", string? type = "ALL",
-            int? min_rating = 0, int? max_rating = 10,
-            int? min_year = 1000, int? max_year = 3000,
-            int page = 1)
+        public async Task<IActionResult> Pages(MoviePageItemViewModel moviePageItemsVM, int page = 1)
         {
-            MoviePageItemViewModel moviePageItemsVM = new MoviePageItemViewModel();
-            moviePageItemsVM.MoviePageItems = new List<MoviePageItem>();
-            moviePageItemsVM.Countries = new List<Country>();
-            moviePageItemsVM.Genres = new List<Genre>();
-
             Func<Task<FilmSearchByFiltersResponse>, Task> ResponseToDb = async (content) => {
                 using (var db = new ApplicationDbContext(connectionString))
                 {
@@ -206,7 +196,7 @@ namespace IMS.Controllers
                                     Type = movieItem.Type.ToString(),
                                     Genres = genresResponse,
                                     Countries = countriesResponse,
-                                    PageIndex = page,
+                                    PageIndex = page
                                 };
                                 await moviesItemsRepo.CreateAsync(movieItemObj);
                             }
@@ -225,23 +215,24 @@ namespace IMS.Controllers
             };
             Dictionary<string, string> queryStrKeyValue = new Dictionary<string, string>
             {
-                { "countries", country.ToString() ?? string.Empty },
-                { "genres", genre.ToString() ?? string.Empty },
-                { "order", order ?? string.Empty },
-                { "type", type ?? string.Empty },
-                { "ratingFrom", min_rating.ToString() ?? string.Empty },
-                { "ratingTo", max_rating.ToString() ?? string.Empty },
-                { "yearFrom", min_year.ToString() ?? string.Empty },
-                { "yearTo", max_year.ToString() ?? string.Empty },
-                { "imdbid", string.Empty },
-                { "keyword", string.Empty },
+                { "countries", moviePageItemsVM.Country.ToString() ?? string.Empty },
+                { "genres", moviePageItemsVM.Genre.ToString() ?? string.Empty },
+                { "order", moviePageItemsVM.Order ?? string.Empty },
+                { "type", moviePageItemsVM.Type ?? string.Empty },
+                { "ratingFrom", MathF.Floor(moviePageItemsVM.MinRating ?? 0).ToString() ?? string.Empty },
+                { "ratingTo",  MathF.Floor(moviePageItemsVM.MaxRating ?? 0).ToString() ?? string.Empty },
+                { "yearFrom", moviePageItemsVM.MinYear.ToString() ?? string.Empty },
+                { "yearTo", moviePageItemsVM.MaxYear.ToString() ?? string.Empty },
+                { "imdbid", moviePageItemsVM.Imdbid ?? string.Empty },
+                { "keyword", moviePageItemsVM.Keyword ?? string.Empty },
                 { "page", page.ToString() ?? string.Empty }
             };
             QueryBuilder queryBuilder = new QueryBuilder(queryStrKeyValue);
             if (await WebAPIConsume.Consume<MoviePage, FilmSearchByFiltersResponse>(
                 $"films/" + queryBuilder.ToQueryString().Value,
                 ResponseToDb,
-                logger))
+                logger) 
+                && ModelState.IsValid)
             {
                 using (var db = new ApplicationDbContext(connectionString))
                 {
@@ -251,18 +242,40 @@ namespace IMS.Controllers
                         IGenres genresRepo = new GenresRepository(db);
                         ICountries countriesRepo = new CountriesRepository(db);
 
-                        IEnumerable<MoviePageItem> movieItems =
-                        moviesItemsRepo.
-                        GetAllWithInclude(m => m.Genres)
+                        List<MoviePageItem> movieItems =
+                        moviesItemsRepo
+                        .GetAllWithInclude(m => m.Genres)
                         .Include(m => m.Countries)
-                        .Where(mi => page == mi.PageIndex && mi.Genres.Any(g => g.Id == genre) && mi.Countries.Any(c => c.Id == country)).ToList();
+                        .Where(mi => page == mi.PageIndex 
+                        && mi.Genres.Any(g => g.Id == moviePageItemsVM.Genre) 
+                        && mi.Countries.Any(c => c.Id == moviePageItemsVM.Country))
+                        .ToList();
+
+                        if(movieItems.Count() > maxMoviesAtPage)
+                        {
+                            for(int i = 0;i < movieItems.Count();i++) 
+                            {
+                                if(i > maxMoviesAtPage)
+                                {
+                                    MoviePageItem moviePageItem = movieItems[i];
+                                    moviePageItem.PageIndex += moviePageItemsVM.TotalPages;
+                                    moviesItemsRepo.Update(moviePageItem);
+                                }
+                            }
+                            movieItems.RemoveRange(maxMoviesAtPage, movieItems.Count() - maxMoviesAtPage);
+                            moviePageItemsVM.Total += maxMoviesAtPage;
+                            moviesItemsRepo.Save();
+                        }
 
                         moviePageItemsVM.MoviePageItems = movieItems;
                         moviePageItemsVM.Countries = countriesRepo.GetAll().ToList();
                         moviePageItemsVM.Genres = genresRepo.GetAll().ToList();
 
-                        if(moviePageItemsVM.MoviePageItems.Count() != 0)
+                        if (moviePageItemsVM.MoviePageItems.Count() != 0 && ModelState.IsValid)
+                        {
+                            ModelState.Clear();
                             return View(moviePageItemsVM);
+                        }
                         else
                         {
                             ModelState.AddModelError("MoviePageItems", "Requested pages were not found.");
@@ -284,29 +297,10 @@ namespace IMS.Controllers
             }
         }
         [Route("Movies/Pages")]
-        [Route("Movies/Pages/{country?}/{genre?}/{order?}/{type?}/{imdbid?}/{keyword?}/{min_rating?}/{max_rating?}/{min_year?}/{max_year?}/{page?}")]
         [HttpPost]
-        public IActionResult PostPages(string? imdbid = "", string? keyword = "",
-            int? country = 1, int? genre = 1,
-            string? order = "RATING", string? type = "ALL",
-            int? min_rating = 0, int? max_rating = 10,
-            int? min_year = 1000, int? max_year = 3000,
-            int page = 1)
+        public IActionResult PostPages(MoviePageItemViewModel moviePageItemVM)
         {
-            return RedirectToAction("Pages", "Movies", new
-            {
-                imdbid,
-                keyword,
-                country,
-                genre,
-                order,
-                type,
-                min_rating,
-                max_rating,
-                min_year,
-                max_year,
-                page
-            });
+            return RedirectToAction("Pages", "Movies", moviePageItemVM);
         }
     }
 }
