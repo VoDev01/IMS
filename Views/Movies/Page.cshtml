@@ -1,0 +1,104 @@
+﻿@model MoviePage
+
+@{
+    if (Model == null)
+        ViewData["Title"] = "Error/Not Found";
+    else
+        ViewData["Title"] = Model.NameRu ?? "Not Found";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("Id")
+            </th>
+            <th>
+                @Html.DisplayName("NameRu")
+            </th>
+            <th>
+                @Html.DisplayName("NameEn")
+            </th>
+            <th>
+                @Html.DisplayName("Slogan")
+            </th>
+            <th>
+                @Html.DisplayName("Description")
+            </th>
+            <th>
+                @Html.DisplayName("ShortDescription")
+            </th>
+            <th>
+                @Html.DisplayName("PosterUrl")
+            </th>
+            <th>
+                @Html.DisplayName("RatingKinopoisk")
+            </th>
+            <th>
+                @Html.DisplayName("RatingImdb")
+            </th>
+            <th>
+                @Html.DisplayName("WebUrl")
+            </th>
+            <th>
+                @Html.DisplayName("Year")
+            </th>
+            <th>
+                @Html.DisplayName("FilmLenght")
+            </th>
+            <th>
+                @Html.DisplayName("EditorAnnotation")
+            </th>
+            <th>
+                @Html.DisplayName("RatingAgeLimits")
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.NameRu)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.NameEn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.Slogan)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.ShortDescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.PosterUrl)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.RatingKinopoisk)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.RatingImdb)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.WebUrl)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.Year)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.FilmLenght)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.EditorAnnotation)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => modelItem.RatingAgeLimits)
+            </td>
+        </tr>
+    </tbody>
+</table>
+<span>@Html.ValidationSummary(true, "MoviePageItems", new { @class = "text-danger" })</span>

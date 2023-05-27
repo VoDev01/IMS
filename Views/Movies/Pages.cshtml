@@ -1,0 +1,199 @@
+﻿@model IMS.ViewModels.MoviePageItemViewModel
+
+@{
+    ViewData["Title"] = "Фильмы";
+}
+
+@section Scripts{
+
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}
+
+<style type="text/css">
+    .form-control:focus{
+        border-color: #888;
+    }
+</style>
+
+<h1>Фильмы</h1>
+
+<h2>Фильтровать по:</h2>
+<div class="container border-1 border-secondary">
+    <div class="row">
+        <form method="post" asp-controller="Movies" asp-action="PostPages">
+            <div>
+                <label for="country">Стране</label>
+                <select asp-for="Country" id="country">
+                    @foreach (var coutry in Model.Countries)
+                    {
+                        <option value="@coutry.Id">
+                            @coutry.Name
+                        </option>
+                    }
+                </select>
+            </div>
+            <div>
+                <br />
+                <label for="genre">Жанру</label>
+                <select asp-for="Genre" id="genre">
+                    @foreach (var genre in Model.Genres)
+                    {
+                        <option value="@genre.Id">
+                            @genre.Name
+                        </option>
+                    }
+                </select>
+            </div>
+            <div>
+                <br />
+                <p>Оценке</p>
+                <label for="min_rating">Минимальная оценка</label>
+                <input type="number" asp-for="MinRating" id="min_rating" value="0.0" min="0.0" max="9.9"/>
+                <label for="max_rating">Максимальная оценка</label>
+                <input type="number" asp-for="MaxRating" id="max_rating" value="10.0" min="0.1" max="10.0"/>
+            </div>
+            <div>
+                <br />
+                <p>Году выпуска</p>
+                <label for="min_date">Минимальный год</label>
+                <input type="number" asp-for="MinYear" id="min_year" value="1000" />
+                <label for="max_date">Максимальный год</label>
+                <input type="number" asp-for="MaxYear" id="max_year" value="3000" />
+            </div>
+            <button class="btn btn-success rounded-pill border-1" type="submit">Фильтровать</button>
+        </form>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("Id")
+            </th>
+            <th>
+                @Html.DisplayName("NameRu")
+            </th>
+            <th>
+                @Html.DisplayName("NameEn")
+            </th>
+            <th>
+                @Html.DisplayName("Countries")
+            </th>
+            <th>
+                @Html.DisplayName("PosterUrl")
+            </th>
+            <th>
+                @Html.DisplayName("PosterUrlPreview")
+            </th>
+            <th>
+                @Html.DisplayName("RatingKinopoisk")
+            </th>
+            <th>
+                @Html.DisplayName("RatingImdb")
+            </th>
+            <th>
+                @Html.DisplayName("Type")
+            </th>
+            <th>
+                @Html.DisplayName("Genres")
+            </th>
+            <th>
+                @Html.DisplayName("Year")
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.MoviePageItems)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NameRu)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NameEn)
+                </td>
+                <td>
+                    @foreach(var country in item.Countries)
+                    {
+                        @Html.DisplayName(country.Name)
+                        <br />
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PosterUrl)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PosterUrlPreview)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RatingKinopoisk)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RatingImdb)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Type)
+                </td>
+                <td>
+                    @foreach (var genre in item.Genres)
+                    {
+                        @Html.DisplayName(genre.Name)
+                        <br />
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Year)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<span asp-validation-for="MoviePageItems" class="text-danger"></span>
+<nav aria-label="Search results pages.">
+    <ul class="pagination justify-content-center">
+        <li class="page-item">
+            <a class="page-link" href="#" aria-label="First">
+                <span aria-hidden="true">&laquo;&laquo;</span>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item">
+               <a class="page-link" asp-action="PostPages" asp-controller="Movies" 
+               asp-route-page="@i"
+               asp-route-country="@Context.Request.Query["Country"]"
+               asp-route-genre="@Context.Request.Query["Genre"]"
+               asp-route-minrating="@Context.Request.Query["MinRating"]"
+               asp-route-maxrating="@Context.Request.Query["MaxRating"]"
+               asp-route-minyear="@Context.Request.Query["MinYear"]"
+               asp-route-maxyear="@Context.Request.Query["MaxYear"]"
+               asp-route-order="@Context.Request.Query["Order"]"
+               asp-route-type="@Context.Request.Query["Type"]">@i</a>
+            </li>
+        }
+        <li class="page-item">
+            <input aria-label="Jump to page" class="form-control shadow-none" name="page" type="number" placeholder="К странице ..." 
+            style="width: 125px; height: 38px;"/>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="#" aria-label="Last">
+                <span aria-hidden="true">&raquo;&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
