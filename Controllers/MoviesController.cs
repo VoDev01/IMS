@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IMS.Models.Repositories;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace IMS.Controllers
 {
@@ -148,6 +150,7 @@ namespace IMS.Controllers
                             var responseVal = content.Result;
                             moviePageItemsVM.Total = responseVal.Total;
                             moviePageItemsVM.TotalPages = responseVal.TotalPages;
+                            int counter = 0;
                             foreach (var movieItem in responseVal.Items)
                             {
                                 if (moviesItemsRepo.IfAny(m => m.KinopoiskId == movieItem.KinopoiskId)
@@ -198,8 +201,10 @@ namespace IMS.Controllers
                                     Countries = countriesResponse,
                                     PageIndex = page
                                 };
+                                counter++;
                                 await moviesItemsRepo.CreateAsync(movieItemObj);
                             }
+                            logger.LogInformation($"Movies fetched: {counter}");
                             await moviesItemsRepo.SaveAsync();
                             transaction.Commit();
                             return;
@@ -242,32 +247,33 @@ namespace IMS.Controllers
                         IGenres genresRepo = new GenresRepository(db);
                         ICountries countriesRepo = new CountriesRepository(db);
 
-                        List<MoviePageItem> movieItems =
+                        IEnumerable<MoviePageItem> movieItems =
                         moviesItemsRepo
                         .GetAllWithInclude(m => m.Genres)
                         .Include(m => m.Countries)
-                        .Where(mi => page == mi.PageIndex 
-                        && mi.Genres.Any(g => g.Id == moviePageItemsVM.Genre) 
-                        && mi.Countries.Any(c => c.Id == moviePageItemsVM.Country))
-                        .ToList();
+                        .Where(mi => page == mi.PageIndex
+                        && mi.Countries.Any(c => c.Id == moviePageItemsVM.Country)
+                        && mi.Genres.Any(g => g.Id == moviePageItemsVM.Genre));
 
-                        if(movieItems.Count() > maxMoviesAtPage)
+                        List<MoviePageItem> movieItemsList = movieItems.ToList();
+
+                        /*if (movieItemsList.Count() > maxMoviesAtPage)
                         {
-                            for(int i = 0;i < movieItems.Count();i++) 
+                            for(int i = 0;i < movieItemsList.Count();i++) 
                             {
                                 if(i > maxMoviesAtPage)
                                 {
-                                    MoviePageItem moviePageItem = movieItems[i];
+                                    MoviePageItem moviePageItem = movieItemsList[i];
                                     moviePageItem.PageIndex += moviePageItemsVM.TotalPages;
                                     moviesItemsRepo.Update(moviePageItem);
                                 }
                             }
-                            movieItems.RemoveRange(maxMoviesAtPage, movieItems.Count() - maxMoviesAtPage);
+                            movieItemsList.RemoveRange(maxMoviesAtPage, movieItemsList.Count() - maxMoviesAtPage);
                             moviePageItemsVM.Total += maxMoviesAtPage;
                             moviesItemsRepo.Save();
-                        }
+                        }*/
 
-                        moviePageItemsVM.MoviePageItems = movieItems;
+                        moviePageItemsVM.MoviePageItems = movieItemsList;
                         moviePageItemsVM.Countries = countriesRepo.GetAll().ToList();
                         moviePageItemsVM.Genres = genresRepo.GetAll().ToList();
 
