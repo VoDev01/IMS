@@ -5,100 +5,70 @@
         ViewData["Title"] = "Error/Not Found";
     else
         ViewData["Title"] = Model.NameRu ?? "Not Found";
+
+    string? altCoverName = Model.NameRu ?? Model.NameEn;
+    string title = "";
+    if (Model.Year != null)
+    {
+        title = $"{Model.NameRu} ({Model.Year.ToString()})";
+    }
+    else if(Model.StartYear != null && Model.EndYear != null)
+    {
+        title = $"{Model.NameRu} ({Model.StartYear.ToString()} - {Model.EndYear.ToString()})";
+    }
 }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayName("Id")
-            </th>
-            <th>
-                @Html.DisplayName("NameRu")
-            </th>
-            <th>
-                @Html.DisplayName("NameEn")
-            </th>
-            <th>
-                @Html.DisplayName("Slogan")
-            </th>
-            <th>
-                @Html.DisplayName("Description")
-            </th>
-            <th>
-                @Html.DisplayName("ShortDescription")
-            </th>
-            <th>
-                @Html.DisplayName("PosterUrl")
-            </th>
-            <th>
-                @Html.DisplayName("RatingKinopoisk")
-            </th>
-            <th>
-                @Html.DisplayName("RatingImdb")
-            </th>
-            <th>
-                @Html.DisplayName("WebUrl")
-            </th>
-            <th>
-                @Html.DisplayName("Year")
-            </th>
-            <th>
-                @Html.DisplayName("FilmLenght")
-            </th>
-            <th>
-                @Html.DisplayName("EditorAnnotation")
-            </th>
-            <th>
-                @Html.DisplayName("RatingAgeLimits")
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.NameRu)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.NameEn)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.Slogan)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.ShortDescription)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.PosterUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.RatingKinopoisk)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.RatingImdb)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.WebUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.Year)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.FilmLenght)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.EditorAnnotation)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => modelItem.RatingAgeLimits)
-            </td>
-        </tr>
-    </tbody>
-</table>
-<span>@Html.ValidationSummary(true, "MoviePageItems", new { @class = "text-danger" })</span>
+@section Scripts{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}
+
+<h2>
+    @title
+</h2>
+<h3>
+    @Html.DisplayFor(modelItem => modelItem.NameEn)
+</h3>
+<blockquote class="blockquote">
+    @Html.DisplayFor(modelItem => modelItem.Slogan)
+</blockquote>
+<p>
+    @Html.DisplayFor(modelItem => modelItem.Description)
+</p>
+<p>
+    @Html.DisplayFor(modelItem => modelItem.ShortDescription)
+</p>
+@{
+}
+<img alt="Постер @altCoverName" src="@Model.PosterUrlPreview">
+<p>
+   Кинопоиск: @Model.RatingKinopoisk
+</p>
+<p>
+   IMDB: @Model.RatingImdb
+</p>
+<p>
+    <a class="link-primary text-decoration-none" href="@Model.WebUrl">Страница на кинопоиске</a>
+</p>
+@if (Model.FilmLenght != null)
+{
+    <p>
+        @Model.FilmLenght
+    </p>
+}
+@if (Model.EditorAnnotation != null)
+{
+    <p>
+        @Model.EditorAnnotation
+    </p>
+}
+<p>
+    @Model.RatingAgeLimits
+</p>
+
+<ul>
+    @foreach (var error in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+    {
+        <li>@error.ErrorMessage</li>
+    }
+</ul>

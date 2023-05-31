@@ -5,13 +5,12 @@
 }
 
 @section Scripts{
-    <!--
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>-->
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 }
 
 <style type="text/css">
-    .form-control:focus{
+    .form-control:focus {
         border-color: #888;
     }
 </style>
@@ -19,9 +18,9 @@
 <h1>Фильмы</h1>
 
 <h2>Фильтровать по:</h2>
-<div class="container border-1 border-secondary">
+<div class="container border border-secondary">
     <div class="row">
-        <form method="post" asp-controller="Movies" asp-action="PostPages">
+        <form asp-controller="Movies" asp-action="PostPages">
             <div>
                 <label for="country">Стране</label>
                 <select asp-for="Country" id="country">
@@ -49,9 +48,9 @@
                 <br />
                 <p>Оценке</p>
                 <label for="min_rating">Минимальная оценка</label>
-                <input type="number" asp-for="MinRating" id="min_rating" value="0.0" min="0.0" max="9.9" step="0.1"/>
+                <input type="number" asp-for="MinRating" id="min_rating" value="0.0" min="0.0" max="9.9" step="0.1" />
                 <label for="max_rating">Максимальная оценка</label>
-                <input type="number" asp-for="MaxRating" id="max_rating" value="10.0" min="0.1" max="10" step="0.1"/>
+                <input type="number" asp-for="MaxRating" id="max_rating" value="10.0" min="0.1" max="10" step="0.1" />
             </div>
             <div>
                 <br />
@@ -65,94 +64,38 @@
         </form>
     </div>
 </div>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayName("Id")
-            </th>
-            <th>
-                @Html.DisplayName("NameRu")
-            </th>
-            <th>
-                @Html.DisplayName("NameEn")
-            </th>
-            <th>
-                @Html.DisplayName("Countries")
-            </th>
-            <th>
-                @Html.DisplayName("PosterUrl")
-            </th>
-            <th>
-                @Html.DisplayName("PosterUrlPreview")
-            </th>
-            <th>
-                @Html.DisplayName("RatingKinopoisk")
-            </th>
-            <th>
-                @Html.DisplayName("RatingImdb")
-            </th>
-            <th>
-                @Html.DisplayName("Type")
-            </th>
-            <th>
-                @Html.DisplayName("Genres")
-            </th>
-            <th>
-                @Html.DisplayName("Year")
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.MoviePageItems)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NameRu)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NameEn)
-                </td>
-                <td>
-                    @foreach(var country in item.Countries)
-                    {
-                        @Html.DisplayName(country.Name)
-                        <br />
-                    }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PosterUrl)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PosterUrlPreview)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RatingKinopoisk)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RatingImdb)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Type)
-                </td>
-                <td>
-                    @foreach (var genre in item.Genres)
-                    {
-                        @Html.DisplayName(genre.Name)
-                        <br />
-                    }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Year)
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+@foreach (var item in Model.MoviePageItems)
+{
+    string title = item.NameRu + $" ({item.Year})";
+    <a class="d-block text-decoration-none text-black" asp-controller="Movies" asp-action="Page" asp-route-id="@item.KinopoiskId">
+        <h2>
+            @title
+        </h2>
+        <h3>
+            @Html.DisplayFor(modelItem => item.NameEn)
+        </h3>
+        <p>
+            @Html.DisplayFor(modelItem => item.Id)
+        </p>
+        <p>
+            @foreach (var country in item.Countries)
+            {
+                @Html.DisplayName(country.Name + " ")
+            }
+        </p>
+        <img alt="Превью @item.NameRu" src="@item.PosterUrlPreview">
+        <p>Кинопоиск: @item.RatingKinopoisk</p>
+        <p>IMDB: @item.RatingImdb</p>
+        <p>Тип*: @item.Type</p>
+        <p>
+            Жанры:
+            @foreach (var genre in item.Genres)
+            {
+                @Html.DisplayName(genre.Name + " ")
+            }
+        </p>
+    </a>
+}
 <span asp-validation-for="MoviePageItems" class="text-danger"></span>
 <nav aria-label="Search results pages.">
     <ul class="pagination justify-content-center">
@@ -169,7 +112,7 @@
         @for (int i = 1; i <= Model.TotalPages; i++)
         {
             <li class="page-item">
-               <a class="page-link" asp-action="PostPages" asp-controller="Movies" 
+                <a class="page-link" asp-action="PostPages" asp-controller="Movies"
                asp-route-page="@i"
                asp-route-country="@Context.Request.Query["Country"]"
                asp-route-genre="@Context.Request.Query["Genre"]"
@@ -182,8 +125,8 @@
             </li>
         }
         <li class="page-item">
-            <input aria-label="Jump to page" class="form-control shadow-none" name="page" type="number" placeholder="К странице ..." 
-            style="width: 125px; height: 38px;"/>
+            <input aria-label="Jump to page" class="form-control shadow-none" name="page" type="number" placeholder="К странице ..."
+                   style="width: 125px; height: 38px;" />
         </li>
         <li class="page-item">
             <a class="page-link" href="#" aria-label="Next">

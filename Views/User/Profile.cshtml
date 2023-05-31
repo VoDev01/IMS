@@ -1,0 +1,17 @@
+﻿@model IMS.ViewModels.UserViewModel;
+
+@{
+    ViewData["title"] = "Профиль";
+}
+<div class="container">
+    <div class="col-6">
+        <img alt="Картинка профиля @Model.User.NickName" src="data:image/jpeg;base64;@(Convert.ToBase64String(Model.User.ProfilePicture))" />
+    </div>
+    <div class="col-6">
+        <h2>@Model.User.NickName</h2>
+        <h3>Имя: @Model.User.Name</h3>
+        <h3>Фамилия: @Model.User.Surname</h3>
+        <p>День рождения: @Model.User.BirthDate</p>
+        <p>Страна проживания: @Model.User.Country</p>
+    </div>
+</div>

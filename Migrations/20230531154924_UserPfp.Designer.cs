@@ -4,6 +4,7 @@ using IMS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230531154924_UserPfp")]
+    partial class UserPfp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace IMS.Migrations
 
                     b.HasIndex("MoviesPagesId");
 
-                    b.ToTable("CountryMoviePage", (string)null);
+                    b.ToTable("CountryMoviePage");
                 });
 
             modelBuilder.Entity("CountryMoviePageItem", b =>
@@ -49,7 +52,7 @@ namespace IMS.Migrations
 
                     b.HasIndex("MoviePageItemsId");
 
-                    b.ToTable("CountryMoviePageItem", (string)null);
+                    b.ToTable("CountryMoviePageItem");
                 });
 
             modelBuilder.Entity("GenreMoviePage", b =>
@@ -64,7 +67,7 @@ namespace IMS.Migrations
 
                     b.HasIndex("MoviesPagesId");
 
-                    b.ToTable("GenreMoviePage", (string)null);
+                    b.ToTable("GenreMoviePage");
                 });
 
             modelBuilder.Entity("GenreMoviePageItem", b =>
@@ -79,7 +82,7 @@ namespace IMS.Migrations
 
                     b.HasIndex("MoviePageItemsId");
 
-                    b.ToTable("GenreMoviePageItem", (string)null);
+                    b.ToTable("GenreMoviePageItem");
                 });
 
             modelBuilder.Entity("IMS.Models.Country", b =>
@@ -97,7 +100,7 @@ namespace IMS.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Countries", (string)null);
+                    b.ToTable("Countries");
                 });
 
             modelBuilder.Entity("IMS.Models.Genre", b =>
@@ -115,7 +118,7 @@ namespace IMS.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Genres", (string)null);
+                    b.ToTable("Genres");
                 });
 
             modelBuilder.Entity("IMS.Models.MoviePage", b =>
@@ -223,7 +226,7 @@ namespace IMS.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MoviesPages", (string)null);
+                    b.ToTable("MoviesPages");
                 });
 
             modelBuilder.Entity("IMS.Models.MoviePageItem", b =>
@@ -281,7 +284,7 @@ namespace IMS.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MoviePageItems", (string)null);
+                    b.ToTable("MoviePageItems");
                 });
 
             modelBuilder.Entity("IMS.Models.Rating", b =>
@@ -311,7 +314,7 @@ namespace IMS.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Ratings", (string)null);
+                    b.ToTable("Ratings");
                 });
 
             modelBuilder.Entity("IMS.Models.User", b =>
@@ -364,7 +367,7 @@ namespace IMS.Migrations
 
                     b.HasIndex("CountryId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("CountryMoviePage", b =>

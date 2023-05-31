@@ -1,0 +1,41 @@
+﻿@{
+    ViewData["title"] = "Вход в профиль";
+}
+@section Scripts
+{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}
+
+<h2 class="text-center">Вход</h2>
+<div class="container border w-50">
+    <form asp-action="Login" asp-controller="User">
+        <div class="mb-3 mt-2">
+            <label class="form-label" for="login">Логин</label>
+            <input class="form-control" type="text" id="login" name="login" />
+        </div>
+        <div class="mb-3">
+            <label class ="form-label" for="email">Email</label>
+            <input class="form-control" type="email" id="email" name="email" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="password">Пароль</label>
+            <input class="form-control" type="password" id="password" name="password" />
+        </div>
+        @if (ViewData.ModelState["User not found"] != null)
+        {
+            var value = ViewData.ModelState["User not found"];
+            <ul>
+                @foreach(var error in value.Errors)
+                {
+                   <li class="text-danger">@error.ErrorMessage</li>
+                }
+            </ul>
+        }
+        <div class="row mb-3 justify-content-center">
+            <a class="btn btn-outline-secondary text-decoration-none col-4" asp-action="Register" asp-controller="User">Зарегистрироваться</a>
+            <div class="col-2"></div>
+            <button class="btn btn-outline-primary col-4" type="submit">Войти</button>
+        </div>
+    </form>
+</div>

@@ -20,6 +20,7 @@ builder.Services.AddScoped<IGenres, GenresRepository>();
 
 builder.Services.AddLogging(logging => logging.AddConsole());
 builder.Services.AddSingleton<Logger<MoviesController>>();
+builder.Services.AddSingleton<Logger<UserController>>();
 
 var app = builder.Build();
 

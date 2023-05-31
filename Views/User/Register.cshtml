@@ -1,0 +1,54 @@
+﻿@model IMS.ViewModels.UserViewModel
+@{
+    ViewData["title"] = "Регистрация";
+}
+@section Scripts
+    {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}
+
+<h2 class="text-center">Регистрация</h2>
+<div class="container border w-50">
+    <form asp-action="Register" asp-controller="User">
+        <div class="mb-3 mt-2">
+            <label class="form-label" for="login">Логин</label>
+            <input class="form-control" type="text" id="login" name="login" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="email">Email</label>
+            <input class="form-control" type="email" id="email" name="email" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="name">Имя</label>
+            <input class="form-control" type="text" id="name" name="name" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="surname">Фамилия</label>
+            <input class="form-control" type="text" id="surname" name="surname" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="password">Пароль</label>
+            <input class="form-control" type="password" id="password" name="password" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="password-repeat">Повторите пароль</label>
+            <input class="form-control" type="password" id="password-repeat" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="birthdate">День рождения</label>
+            <input class="form-control" type="date" id="birthdate" name="birthdate" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="country">Страна проживания</label>
+            <select name="country" id="country" size="1" class="form-select">
+                <option disabled selected>Выберите страну</option>
+                @foreach(var country in Model.Countries)
+                {
+                    <option value="@country.Id">@country.Name</option>
+                }
+            </select>
+        </div>
+        <button class="btn btn-outline-primary mb-3" type="submit">Зарегестрироваться</button>
+    </form>
+</div>

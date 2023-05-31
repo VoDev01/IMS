@@ -85,10 +85,18 @@ namespace IMS.Controllers
                                 Description = responseVal.Description,
                                 ShortDescription = responseVal.ShortDescription,
                                 PosterUrl = responseVal.PosterUrl,
+                                PosterUrlPreview = responseVal.PosterUrlPreview,
+                                CoverUrl = responseVal.CoverUrl,
                                 RatingImdb = responseVal.RatingImdb,
+                                RatingImdbVoteCount = responseVal.RatingImdbVoteCount,
                                 RatingKinopoisk = responseVal.RatingKinopoisk,
+                                RatingKinopoiskVoteCount = responseVal.RatingKinopoiskVoteCount,
                                 WebUrl = responseVal.WebUrl,
                                 Year = responseVal.Year,
+                                StartYear = responseVal.StartYear,
+                                EndYear = responseVal.EndYear,
+                                Type = responseVal.Type.ToString(),
+                                ProductionStatus = responseVal.ProductionStatus.ToString(),
                                 FilmLenght = responseVal.FilmLenght,
                                 EditorAnnotation = responseVal.EditorAnnotation,
                                 RatingAgeLimits = responseVal.RatingAgeLimits,
@@ -118,7 +126,7 @@ namespace IMS.Controllers
                 {
                     IMoviesPages moviesPagesRepo = new MoviesPagesRepository(db);
                     MoviePage? movie = null;
-                    movie = moviesPagesRepo.FindSetByCondition(m => m.KinopoiskId == Convert.ToInt32(id) || m.ImdbId == id).FirstOrDefault();
+                    movie = moviesPagesRepo.FindSetByCondition(m => m.KinopoiskId.ToString() == id || m.ImdbId == id).FirstOrDefault();
                     if (movie != null)
                         return View(movie);
                     else

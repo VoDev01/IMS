@@ -25,7 +25,7 @@ namespace IMS.Models
         public float? RatingImdb { get; set; }
         public int? Year { get; set; }
         [MaxLength(25)]
-        public string Type { get; set; }
+        public string? Type { get; set; }
         [MaxLength(1000)]
         public string PosterUrl { get; set; }
         [MaxLength(1000)]
