@@ -1,74 +1,131 @@
 ﻿@model MoviePage
 
 @{
+    string title = "";
+    string? altCoverName = "";
     if (Model == null)
         ViewData["Title"] = "Error/Not Found";
     else
+    {
         ViewData["Title"] = Model.NameRu ?? "Not Found";
 
-    string? altCoverName = Model.NameRu ?? Model.NameEn;
-    string title = "";
-    if (Model.Year != null)
-    {
-        title = $"{Model.NameRu} ({Model.Year.ToString()})";
-    }
-    else if(Model.StartYear != null && Model.EndYear != null)
-    {
-        title = $"{Model.NameRu} ({Model.StartYear.ToString()} - {Model.EndYear.ToString()})";
+        altCoverName = Model.NameRu ?? Model.NameEn;
+        if (Model.Year != null)
+        {
+            title = $"{Model.NameRu} ({Model.Year.ToString()})";
+        }
+        else if (Model.StartYear != null && Model.EndYear != null)
+        {
+            title = $"{Model.NameRu} ({Model.StartYear.ToString()} - {Model.EndYear.ToString()})";
+        }
     }
 }
-
 @section Scripts{
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 }
-
-<h2>
-    @title
-</h2>
-<h3>
-    @Html.DisplayFor(modelItem => modelItem.NameEn)
-</h3>
-<blockquote class="blockquote">
-    @Html.DisplayFor(modelItem => modelItem.Slogan)
-</blockquote>
-<p>
-    @Html.DisplayFor(modelItem => modelItem.Description)
-</p>
-<p>
-    @Html.DisplayFor(modelItem => modelItem.ShortDescription)
-</p>
-@{
-}
-<img alt="Постер @altCoverName" src="@Model.PosterUrlPreview">
-<p>
-   Кинопоиск: @Model.RatingKinopoisk
-</p>
-<p>
-   IMDB: @Model.RatingImdb
-</p>
-<p>
-    <a class="link-primary text-decoration-none" href="@Model.WebUrl">Страница на кинопоиске</a>
-</p>
-@if (Model.FilmLenght != null)
+@if (ViewData.ModelState["MoviePage"] != null)
 {
-    <p>
-        @Model.FilmLenght
-    </p>
+    <span class="text-danger">@ViewData.ModelState["MoviePage"].Errors.FirstOrDefault().ErrorMessage</span>
 }
-@if (Model.EditorAnnotation != null)
+else
 {
+    <h2>
+        @title
+    </h2>
+    <h3>
+        @Html.DisplayFor(modelItem => modelItem.NameEn)
+    </h3>
+    <img alt="Постер @altCoverName" src="@Model.PosterUrlPreview">
+    <blockquote class="blockquote text-secondary">
+        @Html.DisplayFor(modelItem => modelItem.Slogan)
+    </blockquote>
     <p>
-        @Model.EditorAnnotation
+        <h3>Краткое описание</h3>
+        @Html.DisplayFor(modelItem => modelItem.ShortDescription)
     </p>
-}
-<p>
-    @Model.RatingAgeLimits
-</p>
-
-<ul>
-    @foreach (var error in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+    <p>
+       <h3>Описание</h3>
+       @Html.DisplayFor(modelItem => modelItem.Description)
+    </p>
+    <p>
+        Кинопоиск: @Model.RatingKinopoisk
+    </p>
+    <p>
+        IMDB: @Model.RatingImdb
+    </p>
+    <p>
+        <a class="link-primary text-decoration-none" href="@Model.WebUrl">Страница на кинопоиске</a>
+    </p>
+    @if (Model.FilmLenght != null)
     {
-        <li>@error.ErrorMessage</li>
+        <p>
+           Длительность фильма: @Model.FilmLenght
+        </p>
     }
-</ul>
+    @if (Model.EditorAnnotation != null)
+    {
+        <p>
+           Аннотация редактора: @Model.EditorAnnotation
+        </p>
+    }
+    <p>
+        Возврастное ограничение: @Model.RatingAgeLimits
+    </p>
+    <label for="rating">Оценить: </label>
+    <select class="star-rating mb-2" id="rating" name="rating" onchange="submitRatingToUser()">
+        <option value="1"></option>
+        <option value="2"></option>
+        <option value="3"></option>
+        <option value="4"></option>
+        <option value="5"></option>
+        <option value="6"></option>
+        <option value="7"></option>
+        <option value="8"></option>
+        <option value="9"></option>
+        <option value="10"></option>
+    </select>
+    @Html.Hidden("currentuser", IMS.Controllers.UserController.CurrentUser == null ? 0 : 1)
+    @Html.Hidden("validation_message", 0);
+    @Html.Hidden("movieid", Model.KinopoiskId)
+    <script type="text/javascript">
+        function submitRatingToUser() {
+            if ($("#currentuser").val() != 0) {
+                var data = { rating: $('#rating').val(), movieid: $('#movieid').val() };
+                console.log(data);
+                $.ajax({
+                    type: 'POST',
+                    url: '/Movies/PageRating',
+                    data: data,
+                    success: function (result) {
+                        console.log('Success');
+                    },
+                    error: function () {
+                        console.log('Failed');
+                    }
+                });
+            }
+            else {
+                if ($("#validation_message").val() == 0) 
+                {
+                    var validation = document.createElement('span');
+                    var validationLink = document.createElement('a');
+                    validation.innerHTML = 'Вам нужно войти в свой аккаунт чтобы оценивать фильмы';
+                    validation.classList.add('mb-2');
+                    validation.style.color = 'red';
+                    validationLink.innerHTML = 'Войти';
+                    validationLink.classList.add('btn');
+                    validationLink.classList.add('btn-outline-primary');
+                    validationLink.classList.add('text-decoration-none');
+                    validationLink.classList.add('d-block');
+                    validationLink.style.width = "100px";
+                    validationLink.href = "/User/Login?movieid=" + String($('#movieid').val());
+                    $(validation).insertAfter("#movieid");
+                    $(validationLink).insertAfter(validation);
+                    var validationVal = 1;
+                    $("#validation_message").val(validationVal);
+                }
+            }
+        }
+    </script>
+}

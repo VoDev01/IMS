@@ -10,7 +10,7 @@ namespace IMS.Models
         public MoviePage Movie { get; set; }
         [MaxLength(10000)]
         [MinLength(10)]
-        public string? RatingComment { get; set; }
+        public string? RatingComment { get; set; } = null;
         public int UserId { get; set; }
         public User User { get; set; }
     }

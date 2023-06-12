@@ -1,4 +1,4 @@
-namespace IMS.Models
+﻿namespace IMS.ViewModels
 {
     public class ErrorViewModel
     {

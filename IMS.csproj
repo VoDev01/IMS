@@ -18,16 +18,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CustomValidationAttributes">
+      <HintPath>..\..\CustomValidationAttributes\CustomValidationAttributes\bin\Release\CustomValidationAttributes.dll</HintPath>
+    </Reference>
     <Reference Include="RepositoryLibrary">
       <HintPath>..\..\RepositoryLibrary\RepositoryLibrary\bin\Release\net6.0\RepositoryLibrary.dll</HintPath>
     </Reference>
     <Reference Include="WebAPIConsumeLibrary">
       <HintPath>..\..\WebAPIConsumeLibrary\WebAPIConsumeLibrary\bin\Release\net6.0\WebAPIConsumeLibrary.dll</HintPath>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
 </Project>

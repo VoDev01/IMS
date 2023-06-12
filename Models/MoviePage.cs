@@ -24,7 +24,7 @@ namespace IMS.Models
         [MaxLength(1000)]
         public string PosterUrlPreview { get; set; } = null!;
         [MaxLength(1000)]
-        public string CoverUrl { get; set; } = null!;
+        public string? CoverUrl { get; set; } = null!;
 
         public int ReviewsCount { get; set; }
 

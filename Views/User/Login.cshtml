@@ -1,4 +1,5 @@
-﻿@{
+﻿@model IMS.ViewModels.UserLoginViewModel
+@{
     ViewData["title"] = "Вход в профиль";
 }
 @section Scripts
@@ -11,20 +12,23 @@
 <div class="container border w-50">
     <form asp-action="Login" asp-controller="User">
         <div class="mb-3 mt-2">
-            <label class="form-label" for="login">Логин</label>
-            <input class="form-control" type="text" id="login" name="login" />
+            <label class="form-label" asp-for="Login">Логин</label>
+            <input class="form-control" type="text" asp-for="Login" />
+            <span asp-validation-for="Login" class="text-danger"></span>
         </div>
         <div class="mb-3">
-            <label class ="form-label" for="email">Email</label>
-            <input class="form-control" type="email" id="email" name="email" />
+            <label class ="form-label" asp-for="Email">Email</label>
+            <input class="form-control" type="email" asp-for="Email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
         </div>
         <div class="mb-3">
-            <label class="form-label" for="password">Пароль</label>
-            <input class="form-control" type="password" id="password" name="password" />
+            <label class="form-label" asp-for="Password">Пароль</label>
+            <input class="form-control" type="password" asp-for="Password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
         </div>
-        @if (ViewData.ModelState["User not found"] != null)
+        @if (ViewData.ModelState["User login error"] != null)
         {
-            var value = ViewData.ModelState["User not found"];
+            var value = ViewData.ModelState["User login error"];
             <ul>
                 @foreach(var error in value.Errors)
                 {
@@ -32,6 +36,7 @@
                 }
             </ul>
         }
+        <input hidden asp-for="MovieId" />
         <div class="row mb-3 justify-content-center">
             <a class="btn btn-outline-secondary text-decoration-none col-4" asp-action="Register" asp-controller="User">Зарегистрироваться</a>
             <div class="col-2"></div>

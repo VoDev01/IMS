@@ -4,14 +4,78 @@
     ViewData["title"] = "Профиль";
 }
 <div class="container">
-    <div class="col-6">
-        <img alt="Картинка профиля @Model.User.NickName" src="data:image/jpeg;base64;@(Convert.ToBase64String(Model.User.ProfilePicture))" />
+    <div class="row">
+        <div class="col-2">
+            <img alt="Картинка профиля @Model.User.NickName" src="data:image;base64,@(Convert.ToBase64String(Model.User.ProfilePicture))" width="168" height="168" />
+        </div>
+        <div class="col-10">
+            <h2>@Model.User.NickName</h2>
+            <h3>Имя: @Model.User.Name</h3>
+            <h3>Фамилия: @Model.User.Surname</h3>
+            <p>День рождения: @DateOnly.FromDateTime(Model.User.BirthDate).ToString()</p>
+            <p>Страна проживания: @Model.User.Country.Name</p>
+        </div>
     </div>
-    <div class="col-6">
-        <h2>@Model.User.NickName</h2>
-        <h3>Имя: @Model.User.Name</h3>
-        <h3>Фамилия: @Model.User.Surname</h3>
-        <p>День рождения: @Model.User.BirthDate</p>
-        <p>Страна проживания: @Model.User.Country</p>
-    </div>
+    <h2>Оценки</h2>
+    @if (Model.User.MoviesRatings != null)
+    {
+        if (Model.User.MoviesRatings.Count != 0)
+        {
+            foreach (var movieRating in Model.User.MoviesRatings)
+            {
+                var movie = movieRating.Movie;
+                <div class="row">
+                    <div class="col-11">
+                        <h5>@movie.NameRu-(@movie.Year)</h5>
+                        <h6>@movie.NameEn</h6>
+                    </div>
+                    <div class="col-1">
+                        <h5>@movieRating.RatingNum</h5>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-secondary">На данный момент у вас нет оценок.</p>
+        }
+    }
+    else
+    {
+        <p class="text-secondary">На данный момент у вас нет оценок.</p>
+    }
+    <h3>Комментарии</h3>
+    @if(Model.User.MoviesRatings != null)
+    {
+        if (Model.User.MoviesRatings.All(mr => mr.RatingComment != null || mr.RatingComment != string.Empty))
+        {
+            foreach (var movieRating in Model.User.MoviesRatings)
+            {
+                var movie = movieRating.Movie;
+                if (movieRating.RatingComment == null)
+                    continue;
+                else
+                {
+                    <div class="row flex-column">
+                        <div class="col-8">
+                            <h5>@movie.NameRu-(@movie.Year)</h5>
+                            <h6>@movie.NameEn</h6>
+                            <p>Оценка: @movieRating.RatingNum</p>
+                        </div>
+                        <div class="col-3">
+                            <p>Комментарий: @movieRating.RatingComment</p>
+                        </div>
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <p class="text-secondary">На данный момент у вас нет комментариев.</p>
+        }
+    }
+    else
+    {
+        <p class="text-secondary">На данный момент у вас нет комментариев.</p>
+    }
 </div>

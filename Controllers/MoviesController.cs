@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using IMS.Models.Repositories;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 
 namespace IMS.Controllers
 {
@@ -22,15 +23,16 @@ namespace IMS.Controllers
         {
             this.logger = logger;
             IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
                 .Build();
             connectionString = configuration.GetConnectionString("Default");
         }
         [Route("Movies/Page/{id?}")]
+        //Single-page action that can be accessed by putting in the id of the movie
         public IActionResult Page(string? id)
         {
-            Func<Task<Film>, Task> ResponseToDb = async (content) =>
+            Func<Task<Film>, Task> ResponseToDb = async (content) => //A func that contains interaction with web api
             {
                 using (var db = new ApplicationDbContext(connectionString))
                 {
@@ -100,6 +102,7 @@ namespace IMS.Controllers
                                 FilmLenght = responseVal.FilmLenght,
                                 EditorAnnotation = responseVal.EditorAnnotation,
                                 RatingAgeLimits = responseVal.RatingAgeLimits,
+                                LastSync = responseVal.LastSync,
                                 Genres = genresResponse,
                                 Countries = countriesResponse
                             };
@@ -142,10 +145,17 @@ namespace IMS.Controllers
                 return View();
             }
         }
+        [HttpPost]
+        [Route("Movies/PageRating")]
+        public IActionResult PageRating(int rating, int movieid)
+        {
+            return RedirectToAction("SetMovieRating", "User", new { rating, movieid });
+        }
         [Route("Movies/Pages")]
+        //A GET action that loads movies pages from API (if not present in database) and loads it to view 
         public async Task<IActionResult> Pages(MoviePageItemViewModel moviePageItemsVM, int page = 1)
         {
-            Func<Task<FilmSearchByFiltersResponse>, Task> ResponseToDb = async (content) => {
+            Func<Task<FilmSearchByFiltersResponse>, Task> ResponseToDb = async (content) => { //A func that contains interaction with web api
                 using (var db = new ApplicationDbContext(connectionString))
                 {
                     IMoviesItems moviesItemsRepo = new MoviesItemsRepository(db);
@@ -265,8 +275,8 @@ namespace IMS.Controllers
 
                         List<MoviePageItem> movieItemsList = movieItems.ToList();
 
-                        /*if (movieItemsList.Count() > maxMoviesAtPage)
-                        {
+                        /*if (movieItemsList.Count() > maxMoviesAtPage) //This code executes when returned movies count is greater that maximum amount of movies that
+                        {                                               //can be present at page and puts every movies that exceeds constrait to the very last page
                             for(int i = 0;i < movieItemsList.Count();i++) 
                             {
                                 if(i > maxMoviesAtPage)
@@ -300,7 +310,176 @@ namespace IMS.Controllers
                     {
                         logger.LogError(e.Message);
                         ModelState.AddModelError("MoviePageItems", "Requested pages were not found.");
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Error", "Home");
+                    }
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("MoviePageItems", "Server error. Please contact administrator.");
+                return RedirectToAction("Pages", "Movies", new { page = 1 });
+            }
+        }
+        [Route("Movies/Pages/{searchquery}")]
+        //A GET action that loads movies pages from API (if not present in database) and loads it to view 
+        public async Task<IActionResult> Pages(MoviePageItemViewModel moviePageItemsVM, string searchquery)
+        {
+            Func<Task<FilmSearchByFiltersResponse>, Task> ResponseToDb = async (content) => { //A func that contains interaction with web api
+                using (var db = new ApplicationDbContext(connectionString))
+                {
+                    IMoviesItems moviesItemsRepo = new MoviesItemsRepository(db);
+                    IGenres genresRepo = new GenresRepository(db);
+                    ICountries countriesRepo = new CountriesRepository(db);
+                    using (var transaction = moviesItemsRepo.BeginTransaction())
+                    {
+                        try
+                        {
+                            var responseVal = content.Result;
+                            moviePageItemsVM.Total = responseVal.Total;
+                            moviePageItemsVM.TotalPages = responseVal.TotalPages;
+                            int counter = 0;
+                            foreach (var movieItem in responseVal.Items)
+                            {
+                                if (moviesItemsRepo.IfAny(m => m.KinopoiskId == movieItem.KinopoiskId)
+                                || moviesItemsRepo.IfAny(m => m.ImdbId == movieItem.ImdbId))
+                                {
+                                    logger.LogWarning($"Database already has record {movieItem.NameRu}.");
+                                    continue;
+                                }
+                                List<Genre> genresResponse = new List<Genre>();
+                                foreach (var item in movieItem.Genres)
+                                {
+                                    Genre? genre = genresRepo.FindSetByCondition(g => g.Name == item.Genre).FirstOrDefault();
+                                    if (genre == null)
+                                    {
+                                        logger.LogWarning($"Requested genre {item.Genre} was not found in database");
+                                        continue;
+                                    }
+                                    genresResponse.Add(genre);
+                                }
+                                List<Country> countriesResponse = new List<Country>();
+                                foreach (var item in movieItem.Countries)
+                                {
+                                    Country? country = countriesRepo.FindSetByCondition(c => c.Name == item.Country).FirstOrDefault();
+                                    if (country == null)
+                                    {
+                                        logger.LogWarning($"Requested country {item.Country} was not found in database.");
+                                        continue;
+                                    }
+                                    countriesResponse.Add(country);
+                                }
+                                if (countriesResponse.Count == 0 || genresResponse.Count == 0)
+                                {
+                                    logger.LogError("Some data was not received from the request.");
+                                }
+                                MoviePageItem movieItemObj = new MoviePageItem
+                                {
+                                    NameRu = movieItem.NameRu,
+                                    NameEn = movieItem.NameEn,
+                                    KinopoiskId = movieItem.KinopoiskId,
+                                    ImdbId = movieItem.ImdbId,
+                                    PosterUrl = movieItem.PosterUrl,
+                                    PosterUrlPreview = movieItem.PosterUrlPreview,
+                                    RatingImdb = movieItem.RatingImdb,
+                                    RatingKinopoisk = movieItem.RatingKinopoisk,
+                                    Year = movieItem.Year,
+                                    Type = movieItem.Type.ToString(),
+                                    Genres = genresResponse,
+                                    Countries = countriesResponse,
+                                    PageIndex = page
+                                };
+                                counter++;
+                                await moviesItemsRepo.CreateAsync(movieItemObj);
+                            }
+                            logger.LogInformation($"Movies fetched: {counter}");
+                            await moviesItemsRepo.SaveAsync();
+                            transaction.Commit();
+                            return;
+                        }
+                        catch (Exception e)
+                        {
+                            logger.LogError(e.Message);
+                            transaction.Rollback();
+                            return;
+                        }
+                    }
+                }
+            };
+            Dictionary<string, string> queryStrKeyValue = new Dictionary<string, string>
+            {
+                { "countries", moviePageItemsVM.Country.ToString() ?? string.Empty },
+                { "genres", moviePageItemsVM.Genre.ToString() ?? string.Empty },
+                { "order", moviePageItemsVM.Order ?? string.Empty },
+                { "type", moviePageItemsVM.Type ?? string.Empty },
+                { "ratingFrom", MathF.Floor(moviePageItemsVM.MinRating ?? 0).ToString() ?? string.Empty },
+                { "ratingTo",  MathF.Floor(moviePageItemsVM.MaxRating ?? 0).ToString() ?? string.Empty },
+                { "yearFrom", moviePageItemsVM.MinYear.ToString() ?? string.Empty },
+                { "yearTo", moviePageItemsVM.MaxYear.ToString() ?? string.Empty },
+                { "imdbid", moviePageItemsVM.Imdbid ?? string.Empty },
+                { "keyword", moviePageItemsVM.Keyword ?? string.Empty },
+                { "page", page.ToString() ?? string.Empty }
+            };
+            QueryBuilder queryBuilder = new QueryBuilder(queryStrKeyValue);
+            if (await WebAPIConsume.Consume<MoviePage, FilmSearchByFiltersResponse>(
+                $"films/" + queryBuilder.ToQueryString().Value,
+                ResponseToDb,
+                logger)
+                && ModelState.IsValid)
+            {
+                using (var db = new ApplicationDbContext(connectionString))
+                {
+                    try
+                    {
+                        IMoviesItems moviesItemsRepo = new MoviesItemsRepository(db);
+                        IGenres genresRepo = new GenresRepository(db);
+                        ICountries countriesRepo = new CountriesRepository(db);
+
+                        IEnumerable<MoviePageItem> movieItems =
+                        moviesItemsRepo
+                        .GetAllWithInclude(m => m.Genres)
+                        .Include(m => m.Countries)
+                        .Where(mi => page == mi.PageIndex
+                        && mi.Countries.Any(c => c.Id == moviePageItemsVM.Country)
+                        && mi.Genres.Any(g => g.Id == moviePageItemsVM.Genre));
+
+                        List<MoviePageItem> movieItemsList = movieItems.ToList();
+
+                        /*if (movieItemsList.Count() > maxMoviesAtPage) //This code executes when returned movies count is greater that maximum amount of movies that
+                        {                                               //can be present at page and puts every movies that exceeds constrait to the very last page
+                            for(int i = 0;i < movieItemsList.Count();i++) 
+                            {
+                                if(i > maxMoviesAtPage)
+                                {
+                                    MoviePageItem moviePageItem = movieItemsList[i];
+                                    moviePageItem.PageIndex += moviePageItemsVM.TotalPages;
+                                    moviesItemsRepo.Update(moviePageItem);
+                                }
+                            }
+                            movieItemsList.RemoveRange(maxMoviesAtPage, movieItemsList.Count() - maxMoviesAtPage);
+                            moviePageItemsVM.Total += maxMoviesAtPage;
+                            moviesItemsRepo.Save();
+                        }*/
+
+                        moviePageItemsVM.MoviePageItems = movieItemsList;
+                        moviePageItemsVM.Countries = countriesRepo.GetAll().ToList();
+                        moviePageItemsVM.Genres = genresRepo.GetAll().ToList();
+
+                        if (moviePageItemsVM.MoviePageItems.Count() != 0 && ModelState.IsValid)
+                        {
+                            ModelState.Clear();
+                            return View(moviePageItemsVM);
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("MoviePageItems", "Requested pages were not found.");
+                            return View(moviePageItemsVM);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e.Message);
+                        ModelState.AddModelError("MoviePageItems", "Requested pages were not found.");
+                        return RedirectToAction("Error", "Home");
                     }
                 }
             }
@@ -315,6 +494,12 @@ namespace IMS.Controllers
         public IActionResult PostPages(MoviePageItemViewModel moviePageItemVM)
         {
             return RedirectToAction("Pages", "Movies", moviePageItemVM);
+        }
+        [Route("Movies/Pages")]
+        [HttpPost]
+        public IActionResult PostSearchPages(string searchquery)
+        {
+            return RedirectToAction("Pages", "Movies", new { searchquery });
         }
     }
 }
