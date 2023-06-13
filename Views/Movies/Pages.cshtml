@@ -20,7 +20,7 @@
 <h2>Фильтровать по:</h2>
 <div class="container border border-secondary">
     <div class="row">
-        <form asp-controller="Movies" asp-action="PostPages">
+        <form id="filter" asp-controller="Movies" asp-action="PostPages">
             <div class="mt-3 mb-3">
                 <label for="country">Стране</label>
                 <select asp-for="Country" id="country">
@@ -57,7 +57,7 @@
                 <label asp-for="MaxYear">Максимальный год</label>
                 <input type="number" asp-for="MaxYear" value="3000" />
             </div>
-            <button class="btn btn-success rounded-pill border-1 mb-3" type="submit">Фильтровать</button>
+            <button class="btn btn-success rounded-pill border-1 mb-3" value="Filter" type="submit" form="filter">Фильтровать</button>
         </form>
     </div>
 </div>

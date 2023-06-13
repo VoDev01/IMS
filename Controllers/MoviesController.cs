@@ -8,9 +8,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using IMS.Models.Repositories;
-using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
+using System.Globalization;
 
 namespace IMS.Controllers
 {
@@ -152,10 +150,14 @@ namespace IMS.Controllers
             return RedirectToAction("SetMovieRating", "User", new { rating, movieid });
         }
         [Route("Movies/Pages")]
-        //A GET action that loads movies pages from API (if not present in database) and loads it to view 
+        //A GET action that loads movies pages from API (if not present in database) and puts it to view 
         public async Task<IActionResult> Pages(MoviePageItemViewModel moviePageItemsVM, int page = 1)
         {
-            Func<Task<FilmSearchByFiltersResponse>, Task> ResponseToDb = async (content) => { //A func that contains interaction with web api
+            Func<Task<FilmSearchByFiltersResponse>, Task> ResponseToDb = async (content) =>
+            {
+                //A func that contains interaction with web api
+                if (moviePageItemsVM.MoviePageItems.Count() == 0)
+                    return;
                 using (var db = new ApplicationDbContext(connectionString))
                 {
                     IMoviesItems moviesItemsRepo = new MoviesItemsRepository(db);
@@ -252,7 +254,7 @@ namespace IMS.Controllers
             };
             QueryBuilder queryBuilder = new QueryBuilder(queryStrKeyValue);
             if (await WebAPIConsume.Consume<MoviePage, FilmSearchByFiltersResponse>(
-                $"films/" + queryBuilder.ToQueryString().Value,
+                $"films/{queryBuilder.ToQueryString().Value}",
                 ResponseToDb,
                 logger) 
                 && ModelState.IsValid)
@@ -265,13 +267,30 @@ namespace IMS.Controllers
                         IGenres genresRepo = new GenresRepository(db);
                         ICountries countriesRepo = new CountriesRepository(db);
 
-                        IEnumerable<MoviePageItem> movieItems =
-                        moviesItemsRepo
-                        .GetAllWithInclude(m => m.Genres)
-                        .Include(m => m.Countries)
-                        .Where(mi => page == mi.PageIndex
-                        && mi.Countries.Any(c => c.Id == moviePageItemsVM.Country)
-                        && mi.Genres.Any(g => g.Id == moviePageItemsVM.Genre));
+                        IEnumerable<MoviePageItem> movieItems;
+                        if (moviePageItemsVM.Keyword != null)
+                        {
+                            movieItems =
+                            moviesItemsRepo
+                            .GetAllWithInclude(m => m.Genres)
+                            .Include(m => m.Countries)
+                            .ToList()
+                            .Where(mi => page == mi.PageIndex
+                            && mi.Countries.Any(c => c.Id == moviePageItemsVM.Country)
+                            && mi.Genres.Any(g => g.Id == moviePageItemsVM.Genre)
+                            && mi.NameRu.Contains(moviePageItemsVM.Keyword));
+                        }
+                        else
+                        {
+                            movieItems =
+                            moviesItemsRepo
+                            .GetAllWithInclude(m => m.Genres)
+                            .Include(m => m.Countries)
+                            .ToList()
+                            .Where(mi => page == mi.PageIndex
+                            && mi.Countries.Any(c => c.Id == moviePageItemsVM.Country)
+                            && mi.Genres.Any(g => g.Id == moviePageItemsVM.Genre));
+                        }
 
                         List<MoviePageItem> movieItemsList = movieItems.ToList();
 
@@ -320,11 +339,12 @@ namespace IMS.Controllers
                 return RedirectToAction("Pages", "Movies", new { page = 1 });
             }
         }
-        [Route("Movies/Pages/{searchquery}")]
-        //A GET action that loads movies pages from API (if not present in database) and loads it to view 
-        public async Task<IActionResult> Pages(MoviePageItemViewModel moviePageItemsVM, string searchquery)
+        [Route("Movies/PagesSearchQuery")]
+        //A GET action that searches for movies by keyword then loads movies from API (if not present in database) and puts it to view  
+        public async Task<IActionResult> PagesSearchQuery(string searchQuery = "", int page = 1)
         {
-            Func<Task<FilmSearchByFiltersResponse>, Task> ResponseToDb = async (content) => { //A func that contains interaction with web api
+            MoviePageItemViewModel moviePageItemsVM = new MoviePageItemViewModel();
+            Func<Task<FilmSearchResponse>, Task> ResponseToDb = async (content) => { //A func that contains interaction with web api
                 using (var db = new ApplicationDbContext(connectionString))
                 {
                     IMoviesItems moviesItemsRepo = new MoviesItemsRepository(db);
@@ -335,13 +355,13 @@ namespace IMS.Controllers
                         try
                         {
                             var responseVal = content.Result;
-                            moviePageItemsVM.Total = responseVal.Total;
-                            moviePageItemsVM.TotalPages = responseVal.TotalPages;
+                            moviePageItemsVM.Total = responseVal.SearchFilmsCountResult;
+                            moviePageItemsVM.TotalPages = responseVal.PagesCount;
+                            moviePageItemsVM.Keyword = responseVal.Keyword;
                             int counter = 0;
-                            foreach (var movieItem in responseVal.Items)
+                            foreach (var movieItem in responseVal.Films)
                             {
-                                if (moviesItemsRepo.IfAny(m => m.KinopoiskId == movieItem.KinopoiskId)
-                                || moviesItemsRepo.IfAny(m => m.ImdbId == movieItem.ImdbId))
+                                if (moviesItemsRepo.IfAny(m => m.KinopoiskId == movieItem.FilmId))
                                 {
                                     logger.LogWarning($"Database already has record {movieItem.NameRu}.");
                                     continue;
@@ -372,18 +392,17 @@ namespace IMS.Controllers
                                 {
                                     logger.LogError("Some data was not received from the request.");
                                 }
+                                float rating = float.Parse(movieItem.Rating.Contains('%') ? "0.0" : movieItem.Rating, CultureInfo.InvariantCulture.NumberFormat);
                                 MoviePageItem movieItemObj = new MoviePageItem
                                 {
                                     NameRu = movieItem.NameRu,
                                     NameEn = movieItem.NameEn,
-                                    KinopoiskId = movieItem.KinopoiskId,
-                                    ImdbId = movieItem.ImdbId,
+                                    KinopoiskId = movieItem.FilmId,
                                     PosterUrl = movieItem.PosterUrl,
                                     PosterUrlPreview = movieItem.PosterUrlPreview,
-                                    RatingImdb = movieItem.RatingImdb,
-                                    RatingKinopoisk = movieItem.RatingKinopoisk,
-                                    Year = movieItem.Year,
-                                    Type = movieItem.Type.ToString(),
+                                    RatingKinopoisk = rating,
+                                    Year = Convert.ToInt32(movieItem.Year),
+                                    Type = movieItem.Type,
                                     Genres = genresResponse,
                                     Countries = countriesResponse,
                                     PageIndex = page
@@ -407,25 +426,18 @@ namespace IMS.Controllers
             };
             Dictionary<string, string> queryStrKeyValue = new Dictionary<string, string>
             {
-                { "countries", moviePageItemsVM.Country.ToString() ?? string.Empty },
-                { "genres", moviePageItemsVM.Genre.ToString() ?? string.Empty },
-                { "order", moviePageItemsVM.Order ?? string.Empty },
-                { "type", moviePageItemsVM.Type ?? string.Empty },
-                { "ratingFrom", MathF.Floor(moviePageItemsVM.MinRating ?? 0).ToString() ?? string.Empty },
-                { "ratingTo",  MathF.Floor(moviePageItemsVM.MaxRating ?? 0).ToString() ?? string.Empty },
-                { "yearFrom", moviePageItemsVM.MinYear.ToString() ?? string.Empty },
-                { "yearTo", moviePageItemsVM.MaxYear.ToString() ?? string.Empty },
-                { "imdbid", moviePageItemsVM.Imdbid ?? string.Empty },
-                { "keyword", moviePageItemsVM.Keyword ?? string.Empty },
+                { "keyword", searchQuery },
                 { "page", page.ToString() ?? string.Empty }
             };
             QueryBuilder queryBuilder = new QueryBuilder(queryStrKeyValue);
-            if (await WebAPIConsume.Consume<MoviePage, FilmSearchByFiltersResponse>(
-                $"films/" + queryBuilder.ToQueryString().Value,
+            WebAPIConsume.ConfigureRequestHeaders("https://kinopoiskapiunofficial.tech/api/v2.1/");
+            if (await WebAPIConsume.Consume<MoviePage, FilmSearchResponse>(
+                $"films/search-by-keyword{queryBuilder.ToQueryString().Value}",
                 ResponseToDb,
                 logger)
                 && ModelState.IsValid)
             {
+                WebAPIConsume.ConfigureRequestHeaders("https://kinopoiskapiunofficial.tech/api/v2.2/");
                 using (var db = new ApplicationDbContext(connectionString))
                 {
                     try
@@ -438,6 +450,7 @@ namespace IMS.Controllers
                         moviesItemsRepo
                         .GetAllWithInclude(m => m.Genres)
                         .Include(m => m.Countries)
+                        .ToList()
                         .Where(mi => page == mi.PageIndex
                         && mi.Countries.Any(c => c.Id == moviePageItemsVM.Country)
                         && mi.Genres.Any(g => g.Id == moviePageItemsVM.Genre));
@@ -467,12 +480,12 @@ namespace IMS.Controllers
                         if (moviePageItemsVM.MoviePageItems.Count() != 0 && ModelState.IsValid)
                         {
                             ModelState.Clear();
-                            return View(moviePageItemsVM);
+                            return RedirectToAction("Pages", "Movies", new { moviePageItemsVM, page });
                         }
                         else
                         {
                             ModelState.AddModelError("MoviePageItems", "Requested pages were not found.");
-                            return View(moviePageItemsVM);
+                            return RedirectToAction("Pages", "Movies", new { moviePageItemsVM, page });
                         }
                     }
                     catch (Exception e)
@@ -489,17 +502,17 @@ namespace IMS.Controllers
                 return RedirectToAction("Pages", "Movies", new { page = 1 });
             }
         }
-        [Route("Movies/Pages")]
+        [Route("Movies/PostPages")]
         [HttpPost]
         public IActionResult PostPages(MoviePageItemViewModel moviePageItemVM)
         {
             return RedirectToAction("Pages", "Movies", moviePageItemVM);
         }
-        [Route("Movies/Pages")]
+        [Route("Movies/PostSearchPages")]
         [HttpPost]
         public IActionResult PostSearchPages(string searchquery)
         {
-            return RedirectToAction("Pages", "Movies", new { searchquery });
+            return RedirectToAction("PagesSearchQuery", "Movies", new { searchQuery = searchquery });
         }
     }
 }

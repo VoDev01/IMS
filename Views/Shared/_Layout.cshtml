@@ -33,9 +33,9 @@
                             <a class="nav-link text-dark" asp-controller="User" asp-action="Login">Профиль</a>
                         </li>
                     </ul>
-                    <form class="d-flex" action="">
-                        <input class="form-control me-2" type="search" name="search" placeholder="Поиск фильма">
-                        <button class="btn btn-outline-success" type="submit">Искать</button>
+                    <form id="search" class="d-flex" asp-action="PostSearchPages" asp-controller="Movies">
+                        <input class="form-control me-2" type="search" name="searchquery" placeholder="Поиск фильма">
+                        <button class="btn btn-outline-success" value="Search" type="submit" form="search">Искать</button>
                     </form>
                 </div>
             </div>
