@@ -156,8 +156,6 @@ namespace IMS.Controllers
             Func<Task<FilmSearchByFiltersResponse>, Task> ResponseToDb = async (content) =>
             {
                 //A func that contains interaction with web api
-                if (moviePageItemsVM.MoviePageItems.Count() == 0)
-                    return;
                 using (var db = new ApplicationDbContext(connectionString))
                 {
                     IMoviesItems moviesItemsRepo = new MoviesItemsRepository(db);
@@ -268,7 +266,7 @@ namespace IMS.Controllers
                         ICountries countriesRepo = new CountriesRepository(db);
 
                         IEnumerable<MoviePageItem> movieItems;
-                        if (moviePageItemsVM.Keyword != null)
+                        if (moviePageItemsVM.Keyword != string.Empty)
                         {
                             movieItems =
                             moviesItemsRepo

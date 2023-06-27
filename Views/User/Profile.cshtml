@@ -16,7 +16,8 @@
             <p>Страна проживания: @Model.User.Country.Name</p>
         </div>
     </div>
-    <h2>Оценки</h2>
+    <a class="btn btn-outline-secondary text-decoration-none col-4" asp-action="EditProfile" asp-controller="User">Редактировать профиль</a>
+    <h2>Оценки</h2> 
     @if (Model.User.MoviesRatings != null)
     {
         if (Model.User.MoviesRatings.Count != 0)
@@ -47,7 +48,7 @@
     <h3>Комментарии</h3>
     @if(Model.User.MoviesRatings != null)
     {
-        if (Model.User.MoviesRatings.All(mr => mr.RatingComment != null || mr.RatingComment != string.Empty))
+        if (Model.User.MoviesRatings.All(mr => mr.RatingComment != null))
         {
             foreach (var movieRating in Model.User.MoviesRatings)
             {

@@ -42,6 +42,6 @@ namespace IMS.Models
         [AllowedExtensions(new string[] { ".jpg", ".jpeg", ".png" }, ErrorMessage = "Допустимые расширения изображения: jpg, jpeg, png")]
         [MaxImageResolution(800, 800, ErrorMessage = "Максимальное разрешение изображения - 800x800")]
         public IFormFile? PfpFile { get; set; }
-        public ICollection<Rating>? MoviesRatings { get; set; } = null;
+        public List<Rating>? MoviesRatings { get; set; } = null;
     }
 }

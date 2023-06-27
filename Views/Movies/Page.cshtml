@@ -86,7 +86,7 @@ else
         <option value="10"></option>
     </select>
     @Html.Hidden("currentuser", IMS.Controllers.UserController.CurrentUser == null ? 0 : 1)
-    @Html.Hidden("validation_message", 0);
+    @Html.Hidden("validation_message", 0)
     @Html.Hidden("movieid", Model.KinopoiskId)
     <script type="text/javascript">
         function submitRatingToUser() {

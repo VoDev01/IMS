@@ -16,24 +16,38 @@
             <input class="form-control" type="text" asp-for="Login" />
             <span asp-validation-for="Login" class="text-danger"></span>
         </div>
+        @if (ViewData.ModelState["Wrong Login"] != null)
+        {
+            <ul>
+                <li class="text-danger">@ViewData.ModelState["Wrong Login"].Errors.FirstOrDefault().ErrorMessage</li>
+            </ul>
+        }
         <div class="mb-3">
             <label class ="form-label" asp-for="Email">Email</label>
             <input class="form-control" type="email" asp-for="Email" />
             <span asp-validation-for="Email" class="text-danger"></span>
         </div>
+        @if (ViewData.ModelState["Wrong Email"] != null)
+        {
+            <ul>
+                <li class="text-danger">@ViewData.ModelState["Wrong Email"].Errors.FirstOrDefault().ErrorMessage</li>
+            </ul>
+        }
         <div class="mb-3">
             <label class="form-label" asp-for="Password">Пароль</label>
             <input class="form-control" type="password" asp-for="Password" />
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
-        @if (ViewData.ModelState["User login error"] != null)
+        @if (ViewData.ModelState["Wrong Password"] != null)
         {
-            var value = ViewData.ModelState["User login error"];
             <ul>
-                @foreach(var error in value.Errors)
-                {
-                   <li class="text-danger">@error.ErrorMessage</li>
-                }
+                <li class="text-danger">@ViewData.ModelState["Wrong Password"].Errors.FirstOrDefault().ErrorMessage</li>
+            </ul>
+        }
+        @if (ViewData.ModelState["User not found"] != null)
+        {
+            <ul>
+                <li class="text-danger">@ViewData.ModelState["User not found"].Errors.FirstOrDefault().ErrorMessage</li>
             </ul>
         }
         <input hidden asp-for="MovieId" />

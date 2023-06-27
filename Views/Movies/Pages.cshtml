@@ -61,6 +61,7 @@
         </form>
     </div>
 </div>
+@{ int id = 0; }
 @foreach (var item in Model.MoviePageItems)
 {
     string title = item.NameRu + $" ({item.Year})";
@@ -92,8 +93,13 @@
             }
         </p>
     </a>
-    <label for="rating">Оценить: </label>
-    <select class="star-rating" id="rating" onselect="">
+
+    string selectId = $"rating{id}";
+    string movieId = $"movieid{id}";
+    string validationId = $"validation_message{id}";
+
+    <label for="@selectId">Оценить: </label>
+    <select class="star-rating rating" id="@selectId" onselect="submitRatingToUser(this.id, @movieId, @validationId)">
         <option value="1"></option>
         <option value="2"></option>
         <option value="3"></option>
@@ -105,8 +111,11 @@
         <option value="9"></option>
         <option value="10"></option>
     </select>
+    @Html.Hidden(movieId, item.KinopoiskId)
+    @Html.Hidden(validationId, 0)
+    id++;
 }
-<span asp-validation-for="MoviePageItems" class="text-danger"></span>
+@Html.Hidden("currentuser", IMS.Controllers.UserController.CurrentUser == null ? 0 : 1)
 <nav aria-label="Search results pages.">
     <ul class="pagination justify-content-center">
         <li class="page-item">
@@ -150,3 +159,44 @@
         </li>
     </ul>
 </nav>
+<span asp-validation-for="MoviePageItems" class="text-danger"></span>
+<script type="text/javascript">
+    function submitRatingToUser(rating_id, movie_id, validation_message_id) {
+        if ($("#currentuser").val() != 0) 
+        {
+            var data = { rating: $(rating_id).val(), movieid: $(movie_id).val() };
+            console.log(data);
+            $.ajax({
+                type: 'POST',
+                url: '/Movies/PageRating',
+                data: data,
+                success: function (result) {
+                    console.log('Success');
+                },
+                error: function () {
+                    console.log('Failed');
+                }
+            });
+        }
+        else {
+            if ($(validation_message_id).val() == 0) {
+                var validation = document.createElement('span');
+                var validationLink = document.createElement('a');
+                validation.innerHTML = 'Вам нужно войти в свой аккаунт чтобы оценивать фильмы';
+                validation.classList.add('mb-2');
+                validation.style.color = 'red';
+                validationLink.innerHTML = 'Войти';
+                validationLink.classList.add('btn');
+                validationLink.classList.add('btn-outline-primary');
+                validationLink.classList.add('text-decoration-none');
+                validationLink.classList.add('d-block');
+                validationLink.style.width = "100px";
+                validationLink.href = "/User/Login?movieid=" + String($(movie_id).val());
+                $(validation).insertAfter(movie_id);
+                $(validationLink).insertAfter(validation);
+                var validationVal = 1;
+                $(validation_message_id).val(validationVal);
+            }
+        }
+    }
+</script>

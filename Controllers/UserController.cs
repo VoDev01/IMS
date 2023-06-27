@@ -22,6 +22,38 @@ namespace IMS.Controllers
                 .Build();
             connectionString = configuration.GetConnectionString("Default");
         }
+        public IActionResult EditProfile()
+        {
+            using (var db = new ApplicationDbContext(connectionString))
+            {
+                ICountries countries = new CountriesRepository(db);
+                UserViewModel userViewModel = new UserViewModel();
+                userViewModel.User = CurrentUser;
+                userViewModel.Countries = countries.GetAll().ToList();
+                return View(userViewModel);
+            }
+        }
+        [HttpPost]
+        public IActionResult EditProfile(UserViewModel userVM)
+        {
+            using(var db = new ApplicationDbContext(connectionString))
+            {
+                IUsers users = new UsersRepository(db);
+
+                User user = users.GetByID(CurrentUser.Id);
+                CurrentUser.NickName = userVM.User.NickName;
+                CurrentUser.Name = userVM.User.Name;
+                CurrentUser.Surname = userVM.User.Surname;
+                CurrentUser.Email = userVM.User.Email;
+                CurrentUser.Country = userVM.User.Country;
+                CurrentUser.BirthDate = userVM.User.BirthDate;
+                ChangePfp(CurrentUser.Id);
+                user = CurrentUser;
+
+                users.Save();
+                return View(CurrentUser);
+            }
+        }
         public async Task<IActionResult> SetMovieRating(int rating, int movieid)
         {
             using (var db = new ApplicationDbContext(connectionString))
@@ -30,18 +62,37 @@ namespace IMS.Controllers
                 IMoviesPages moviesPages = new MoviesPagesRepository(db);
                 try
                 {
-                    User? user = users.FindSetByCondition(u => u.UserUrlId == CurrentUser.UserUrlId).ToList().FirstOrDefault();
-                    if(user.MoviesRatings != null)
-                        user.MoviesRatings.Add(new Rating { RatingNum = rating, Movie = moviesPages.FindSetByCondition(m => m.KinopoiskId == movieid).FirstOrDefault()});
+                    User? user = users
+                        .GetAllWithInclude(u => u.MoviesRatings)
+                        .ThenInclude(mr => ((Rating)mr).Movie)
+                        .Where(u => u.UserUrlId == CurrentUser.UserUrlId)
+                        .ToList().FirstOrDefault();
+                    if (user.MoviesRatings != null)
+                    {
+                        var movieRating = user.MoviesRatings.Where(mr => mr.Movie.KinopoiskId == movieid).FirstOrDefault();
+                        if (movieRating != null)
+                        {
+                            int ratingId = movieRating.Id;
+                            user.MoviesRatings[ratingId-1].RatingNum = rating;
+                        }
+                        else
+                        {
+                            user.MoviesRatings.Add(new Rating
+                                {
+                                    RatingNum = rating,
+                                    Movie = moviesPages.FindSetByCondition(m => m.KinopoiskId == movieid).FirstOrDefault()
+                                }
+                            );
+                        }
+                    }
                     else
                     {
-                        user.MoviesRatings = new List<Rating> 
+                        user.MoviesRatings = new List<Rating>
                         {
                             new Rating { RatingNum = rating, Movie = moviesPages.FindSetByCondition(m => m.KinopoiskId == movieid).FirstOrDefault() }
                         };
                     }
                     CurrentUser.MoviesRatings = user.MoviesRatings;
-                    users.Update(user);
                     await users.SaveAsync();
                     return RedirectToAction("Page", "Movies", new { id = movieid });
                 }
@@ -53,7 +104,7 @@ namespace IMS.Controllers
             }
         }
         //Action for changing profile picture of the user
-        public IActionResult ChangePfp(int userId, string userUrlId)
+        public void ChangePfp(int userId, string userUrlId = "")
         {
             using (var db = new ApplicationDbContext(connectionString))
             {
@@ -70,15 +121,12 @@ namespace IMS.Controllers
                     }
                     user.ProfilePicture = imageData;
                     userVM.User = user;
-                    users.Update(user);
                     users.Save();
-
-                    return RedirectToAction("Profile", new { userId, userUrlId });
                 }
                 catch(Exception e)
                 {
                     logger.LogError(e.Message);
-                    return View();
+                    return;
                 }
             }
         }
@@ -181,9 +229,27 @@ namespace IMS.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("User login error", "Такого профиля не существует или введены неверные данные.");
-                    logger.LogWarning($"User with nickname {userLoginVM.Login} was not found or wrong login data was typed");
-                    return View();
+                    if (users.FindSetByCondition(u => u.Password == userLoginVM.Password).Count() == 0)
+                    {
+                        ModelState.AddModelError("Wrong Password", "Неверный пароль");
+                        return View();
+                    }
+                    else if (users.FindSetByCondition(u => u.Email == userLoginVM.Email).Count() == 0)
+                    {
+                        ModelState.AddModelError("Wrong Email", "Неверный email");
+                        return View();
+                    }
+                    else if (users.FindSetByCondition(u => u.NickName == userLoginVM.Login).Count() == 0)
+                    {
+                        ModelState.AddModelError("Wrong Login", "Неверный логин");
+                        return View();
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("User not found", "Такого профиля не существует. Зарегистрируйтесь и создайте новый.");
+                        logger.LogWarning($"User with nickname {userLoginVM.Login} was not found or wrong login data was typed");
+                        return View();
+                    }
                 }
             }
         }
