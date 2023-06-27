@@ -16,7 +16,7 @@
             <p>Страна проживания: @Model.User.Country.Name</p>
         </div>
     </div>
-    <a class="btn btn-outline-secondary text-decoration-none col-4" asp-action="EditProfile" asp-controller="User">Редактировать профиль</a>
+    <a class="text-secondary text-decoration-none" asp-action="EditProfile" asp-controller="User">Редактировать профиль</a>
     <h2>Оценки</h2> 
     @if (Model.User.MoviesRatings != null)
     {

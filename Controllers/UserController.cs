@@ -34,24 +34,25 @@ namespace IMS.Controllers
             }
         }
         [HttpPost]
-        public IActionResult EditProfile(UserViewModel userVM)
+        public IActionResult EditProfile(UserViewModel userVM, int country)
         {
             using(var db = new ApplicationDbContext(connectionString))
             {
                 IUsers users = new UsersRepository(db);
+                ICountries countries = new CountriesRepository(db);
 
                 User user = users.GetByID(CurrentUser.Id);
-                CurrentUser.NickName = userVM.User.NickName;
-                CurrentUser.Name = userVM.User.Name;
-                CurrentUser.Surname = userVM.User.Surname;
-                CurrentUser.Email = userVM.User.Email;
-                CurrentUser.Country = userVM.User.Country;
+                CurrentUser.NickName = userVM.User.NickName == string.Empty ? CurrentUser.NickName : userVM.User.NickName;
+                CurrentUser.Name = userVM.User.Name == string.Empty ? CurrentUser.Name : userVM.User.Name;
+                CurrentUser.Surname = userVM.User.Surname == string.Empty ? CurrentUser.Surname : userVM.User.Surname;
+                CurrentUser.Email = userVM.User.Email == string.Empty ? CurrentUser.Email : userVM.User.Email;
+                CurrentUser.Country = countries.GetByID(country);
                 CurrentUser.BirthDate = userVM.User.BirthDate;
-                ChangePfp(CurrentUser.Id);
+                ChangePfp(userVM.User.PfpFile, CurrentUser.Id);
                 user = CurrentUser;
 
                 users.Save();
-                return View(CurrentUser);
+                return RedirectToAction("Profile", "User");
             }
         }
         public async Task<IActionResult> SetMovieRating(int rating, int movieid)
@@ -104,7 +105,7 @@ namespace IMS.Controllers
             }
         }
         //Action for changing profile picture of the user
-        public void ChangePfp(int userId, string userUrlId = "")
+        public void ChangePfp(IFormFile pfpFile, int userId, string userUrlId = "")
         {
             using (var db = new ApplicationDbContext(connectionString))
             {
@@ -113,14 +114,12 @@ namespace IMS.Controllers
                     IUsers users = new UsersRepository(db);
 
                     byte[]? imageData = null;
-                    UserViewModel userVM = new UserViewModel();
                     User? user = users.FindSetByCondition(u => u.Id == userId || u.UserUrlId == userUrlId).FirstOrDefault();
-                    using (var stream = new BinaryReader(user.PfpFile.OpenReadStream())) //Retrieving image through FormFile Interface
+                    using (var stream = new BinaryReader(pfpFile.OpenReadStream())) //Retrieving image through FormFile Interface
                     {
-                        imageData = stream.ReadBytes((int)user.PfpFile.Length);
+                        imageData = stream.ReadBytes((int)pfpFile.Length);
                     }
                     user.ProfilePicture = imageData;
-                    userVM.User = user;
                     users.Save();
                 }
                 catch(Exception e)
