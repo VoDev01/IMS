@@ -131,7 +131,7 @@
         @for (int i = 1; i <= Model.TotalPages; i++)
         {
             <li class="page-item">
-                <a class="page-link" asp-action="PostPages" asp-controller="Movies"
+                <a class="page-link" asp-action="Pages" asp-controller="Movies"
                asp-route-page="@i"
                asp-route-country="@Context.Request.Query["Country"]"
                asp-route-genre="@Context.Request.Query["Genre"]"
