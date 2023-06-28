@@ -5,6 +5,7 @@ using IMS.Models.Repositories;
 using IMS.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IO.Compression;
 
 namespace IMS.Controllers
 {
@@ -48,9 +49,21 @@ namespace IMS.Controllers
                 CurrentUser.Email = userVM.User.Email == string.Empty ? CurrentUser.Email : userVM.User.Email;
                 CurrentUser.Country = countries.GetByID(country);
                 CurrentUser.BirthDate = userVM.User.BirthDate;
-                ChangePfp(userVM.User.PfpFile, CurrentUser.Id);
-                user = CurrentUser;
-
+                try
+                {
+                    byte[] imageData;
+                    using (var stream = new BinaryReader(userVM.User.PfpFile.OpenReadStream())) //Retrieving image through FormFile Interface
+                    {
+                        imageData = stream.ReadBytes((int)userVM.User.PfpFile.Length);
+                    }
+                    CurrentUser.ProfilePicture = imageData;
+                    user = CurrentUser;
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e.Message);
+                    return RedirectToAction("Profile", "User");
+                }
                 users.Save();
                 return RedirectToAction("Profile", "User");
             }
@@ -101,31 +114,6 @@ namespace IMS.Controllers
                 {
                     logger.LogError(e.Message);
                     return RedirectToAction("Page", "Movies", new { id = movieid });
-                }
-            }
-        }
-        //Action for changing profile picture of the user
-        public void ChangePfp(IFormFile pfpFile, int userId, string userUrlId = "")
-        {
-            using (var db = new ApplicationDbContext(connectionString))
-            {
-                try
-                {
-                    IUsers users = new UsersRepository(db);
-
-                    byte[]? imageData = null;
-                    User? user = users.FindSetByCondition(u => u.Id == userId || u.UserUrlId == userUrlId).FirstOrDefault();
-                    using (var stream = new BinaryReader(pfpFile.OpenReadStream())) //Retrieving image through FormFile Interface
-                    {
-                        imageData = stream.ReadBytes((int)pfpFile.Length);
-                    }
-                    user.ProfilePicture = imageData;
-                    users.Save();
-                }
-                catch(Exception e)
-                {
-                    logger.LogError(e.Message);
-                    return;
                 }
             }
         }
